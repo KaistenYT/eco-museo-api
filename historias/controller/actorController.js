@@ -53,14 +53,15 @@ export class ActorController {
     }
 
     
-    static async registerActor(req, res) {
+    static async createActor(req, res) {
         try {
-            const actor = await Actor.create(req.body);
-            return res.status(201).json({ 
-                success: true,
-                message: 'Actor registrado correctamente',
-                data: actor
-            });
+           const newActor = await Actor.create(req.body);
+           return res.status(201).json({
+             success: true,
+             message: 'Actor registrado correctamente',
+             data : newActor
+           })
+           
         } catch (error) {
             console.error('Error al registrar el actor', error);
             return res.status(500).json({
