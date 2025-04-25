@@ -3,10 +3,10 @@ import { ActorController } from '../controller/actorController';
 
 const router = express.Router();
 
-router.get('/', ActorController.getAllActors);
+router.get('/list', ActorController.getAllActors);
 router.get('/:id', ActorController.getActorById);
-router.post('/', ActorController.createActor);
-router.put('/:id', ActorController.updateActor);
-router.delete('/:id', ActorController.deleteActor);
+router.post('/add', ActorController.createActor);
+router.put('/update/:id', ActorController.updateActor);
+router.delete('/delete/:id', ActorController.deleteActor);
 
 export default router;
