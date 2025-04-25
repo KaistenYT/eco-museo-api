@@ -1,12 +1,7 @@
-import knex from 'knex'
+const knex = require('knex')
+const knexConfig = require('../knexfile.cjs')
 
-const db = knex({
-
-    client: 'sqlite3',
-    connection: {
-        filename: './eco-museo.sqlite'
-    }
-})
+const db = knex(knexConfig.development)
 
 async function createActorTable (){
 
