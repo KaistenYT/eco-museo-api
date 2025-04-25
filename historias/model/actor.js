@@ -1,26 +1,95 @@
-import db from '../config/DatabaseConfig'
+import supabase from '../config/DatabaseConfig'; // Importa tu instancia de Supabase
 
-class Actor{
+class Actor {
+  static async getAll() {
+    try {
+      const { data, error } = await supabase
+        .from('actor')
+        .select('*');
 
-    static async getAll(){
-        return await db('actor').select('*')
+      if (error) {
+        console.error('Error al obtener todos los actores:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error; // Re-lanza el error para el manejo centralizado
     }
+  }
 
-    static async getById(id){
-        return await db('actor').select('*').where('idActor', Number(id)).first()
-    }
+  static async getById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('actor')
+        .select('*')
+        .eq('idActor', id)
+        .single();
 
-    static async create(actor){
-        return await db('actor').insert(actor)
+      if (error) {
+        console.error('Error al obtener actor por ID:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
+  }
 
-    static async update(id, actor){
-        return await db('actor').where('idActor', id).update(actor)
-    }
+  static async create(actor) {
+    try {
+      const { data, error } = await supabase
+        .from('actor')
+        .insert([actor])
+        .select()
+        .single();
 
-    static async delete(id){
-        return await db('actor').where('idActor', id).del()
+      if (error) {
+        console.error('Error al crear actor:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+        throw error;
     }
+  }
+
+  static async update(id, actor) {
+    try {
+      const { data, error } = await supabase
+        .from('actor')
+        .update(actor)
+        .eq('idActor', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error al actualizar actor:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async delete(id) {
+    try {
+      const { data, error } = await supabase
+        .from('actor')
+        .delete()
+        .eq('idActor', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error al eliminar actor:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
-export default Actor
+export default Actor;

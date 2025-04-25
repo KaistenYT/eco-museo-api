@@ -1,21 +1,95 @@
-import db from "../config/DatabaseConfig";
+import supabase from '../config/DatabaseConfig';
 
+class Participation {
+  static async getAll() {
+    try {
+      const { data, error } = await supabase
+        .from('participation')
+        .select('*');
 
-class Participation{
-    static async getAll(){
-        return await db('participation').select('*')
+      if (error) {
+        console.error('Error al obtener todas las participaciones:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
-    static async getById(id){
-        return await db('participation').select('*').where('idParticipation', Number(id)).first()
+  }
+
+  static async getById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('participation')
+        .select('*')
+        .eq('idParticipation', id)
+        .single();
+
+      if (error) {
+        console.error('Error al obtener participación por ID:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
-    static async create(participation){
-        return await db('participation').insert(participation)
+  }
+
+  static async create(participation) {
+    try {
+      const { data, error } = await supabase
+        .from('participation')
+        .insert([participation])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error al crear participación:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
-    static async update(id, participation){
-        return await db('participation').where('idParticipation', id).update(participation)
+  }
+
+  static async update(id, participation) {
+    try {
+      const { data, error } = await supabase
+        .from('participation')
+        .update(participation)
+        .eq('idParticipation', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error al actualizar participación:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
-    static async delete(id){
-        return await db('participation').where('idParticipation', id).del()
+  }
+
+  static async delete(id) {
+    try {
+      const { data, error } = await supabase
+        .from('participation')
+        .delete()
+        .eq('idParticipation', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error al eliminar participación:', error);
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      throw error;
     }
+  }
 }
-export default Participation
+
+export default Participation;

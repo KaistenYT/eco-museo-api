@@ -1,93 +1,75 @@
-const knex = require('knex')
-const knexConfig = require('../knexfile.cjs')
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
-const db = knex(knexConfig.development)
+dotenv.config();
 
-async function createActorTable (){
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 
-    const exist = await db.schema.hasTable('actor')
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key:', supabaseKey);
 
-    if(!exist){
-        await db.schema.createTable('actor', table => {
-            table.increments('idActor').primary()
-            table.string('nombre').notNullable()
-            table.string('apellido').nullable()
-            table.string('rol').notNullable()
-        })
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-        console.log('table actor created')
-    }else{
-        console.log('table actor already exists')
-    }
-
+async function createActorTable() {
+  const { error } = await supabase
+    .from('actor')
+    .insert([])
+    //.single();  Removed .single()
+  if (error) {
+    console.error('Error al interactuar con la tabla "actor":', error);
+  } else {
+    console.log('Tabla "actor" creada.');
+  }
 }
 
 async function createTableAuthor() {
-    const exist = await db.schema.hasTable('author')
-
-    if(!exist){
-        await db.schema.createTable('author', table => {
-            table.increments('idAuthor').primary()
-            table.string('nombre').notNullable()
-            table.string('apellido').nullable()
-        })
-
-        console.log('table author created')
-    }else{
-        console.log('table author already exists')
-    }
-
+  const { error } = await supabase
+    .from('author')
+    .insert([])
+    //.single();  Removed .single()
+  if (error) {
+    console.error('Error al interactuar con la tabla "author":', error);
+  } else {
+    console.log('Tabla "author" creada.');
+  }
 }
 
 async function createHistoryTable() {
-    const exist = await db.schema.hasTable('history')
+  const { data, error } = await supabase //added data
+    .from('history')
+    .insert([]);
+    //.single(); Removed .single()
 
-    if(!exist){
-        await db.schema.createTable('history', table => {
-            table.increments('idHistory').primary()
-            table.string('tittle')
-            table.string('description')
-            table.integer('idAuthor')
-            table.foreign('idAuthor').references('author.idAuthor')
-        })
-
-        console.log('table history created')
-    }else{
-        console.log('table history already exists')
-    }
-
+  if (error) {
+    console.error('Error al interactuar con la tabla "history":', error);
+    console.error('Detalles del error:', error);
+  } else {
+    console.log('Tabla "history" creada.');
+  }
 }
-
 
 async function createParticipationTable() {
-    const exist = await db.schema.hasTable('participation')
+  const { data, error } = await supabase //added data
+    .from('participation')
+    .insert([]);
+    //.single(); Removed .single()
 
-    if(!exist){
-        await db.schema.createTable('participation', table => {
-            table.increments('idParticipation').primary()
-            table.integer('idHistory')
-            table.integer('idActor')
-            table.foreign('idHistory').references('history.idHistory')
-            table.foreign('idActor').references('actor.idActor')
-        })
-
-        console.log('table participation created')
-    }else{
-        console.log('table participation already exists')
-    }
-
+  if (error) {
+    console.error('Error al interactuar con la tabla "participation":', error);
+    console.error('Detalles del error:', error);
+  } else {
+    console.log('Tabla "participation" creada.');
+  }
 }
 
-
-
-async function  createInitialTables() {
-    await createActorTable()
-    await createTableAuthor()
-    await createHistoryTable()
-    await createParticipationTable()
+async function createInitialTables() {
+  await createActorTable();
+  await createTableAuthor();
+  await createHistoryTable();
+  await createParticipationTable();
 }
-createInitialTables()
 
-export default db
+createInitialTables();
 
-  
+export default supabase;
