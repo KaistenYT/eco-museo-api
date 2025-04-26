@@ -22,7 +22,7 @@ class Actor {
       const { data, error } = await supabase
         .from('actor')
         .select('*')
-        .eq('idActor', id)
+        .eq('idactor', id)
         .single();
 
       if (error) {
@@ -58,7 +58,7 @@ class Actor {
       const { data, error } = await supabase
         .from('actor')
         .update(actor)
-        .eq('idActor', id)
+        .eq('idactor', id)
         .select()
         .single();
 
@@ -77,7 +77,7 @@ class Actor {
       const { data, error } = await supabase
         .from('actor')
         .delete()
-        .eq('idActor', id)
+        .eq('idactor', id)
         .select()
         .single();
 

@@ -16,8 +16,10 @@ async function createActorTable() {
     .from('actor')
     .insert([])
     //.single();  Removed .single()
+
   if (error) {
     console.error('Error al interactuar con la tabla "actor":', error);
+    console.error('Detalles del error:', error);
   } else {
     console.log('Tabla "actor" creada.');
   }
@@ -26,14 +28,17 @@ async function createActorTable() {
 async function createTableAuthor() {
   const { error } = await supabase
     .from('author')
-    .insert([])
-    //.single();  Removed .single()
+    .insert([]);
+    //.single(); Removed .single()
+
   if (error) {
     console.error('Error al interactuar con la tabla "author":', error);
+    console.error('Detalles del error:', error);
   } else {
     console.log('Tabla "author" creada.');
   }
 }
+    
 
 async function createHistoryTable() {
   const { data, error } = await supabase //added data
@@ -49,25 +54,13 @@ async function createHistoryTable() {
   }
 }
 
-async function createParticipationTable() {
-  const { data, error } = await supabase //added data
-    .from('participation')
-    .insert([]);
-    //.single(); Removed .single()
 
-  if (error) {
-    console.error('Error al interactuar con la tabla "participation":', error);
-    console.error('Detalles del error:', error);
-  } else {
-    console.log('Tabla "participation" creada.');
-  }
-}
 
 async function createInitialTables() {
   await createActorTable();
   await createTableAuthor();
   await createHistoryTable();
-  await createParticipationTable();
+
 }
 
 createInitialTables();
