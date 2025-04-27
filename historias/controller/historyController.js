@@ -62,7 +62,7 @@ export class HistoryController {
 
   static async updateHistory(req, res) {
     try {
-      const updatedHistory = await History.update(req.params.id, req.body); //consistent name
+      const updatedHistory = await History.update(req.params.id, req.body); 
       if (!updatedHistory) {
         return res.status(404).json({
           success: false,
@@ -72,7 +72,7 @@ export class HistoryController {
       return res.json({
         success: true,
         message: 'Historia actualizada correctamente',
-        data: updatedHistory //send data
+        data: updatedHistory 
       });
     } catch (error) {
       console.error('Error al actualizar la historia', error);
@@ -86,7 +86,7 @@ export class HistoryController {
 
   static async deleteHistory(req, res) {
     try {
-      const deletedHistory = await History.delete(req.params.id); //consistent name
+      const deletedHistory = await History.delete(req.params.id); 
       if (!deletedHistory) {
         return res.status(404).json({
           success: false,
@@ -96,7 +96,7 @@ export class HistoryController {
       return res.json({
         success: true,
         message: 'Historia eliminada correctamente',
-        data: deletedHistory //send data
+        data: deletedHistory 
       });
     } catch (error) {
       console.error('Error al eliminar la historia', error);
@@ -104,6 +104,108 @@ export class HistoryController {
         success: false,
         message: 'Error al eliminar la historia',
         error: error.message
+      });
+    }
+  }
+
+  static async getHistoryAuthors(req, res) {
+    try {
+      const authors = await History.getAuthors(req.params.id);
+      return res.json({
+        success: true,
+        data: authors
+      });
+    } catch (error) {
+      console.error('Error al obtener autores de la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al obtener autores de la historia',
+        message: error.message
+      });
+    }
+  }
+
+  static async addHistoryAuthor(req, res) {
+    try {
+      await History.addAuthor(req.params.id, req.body.authorId);
+      return res.json({
+        success: true,
+        message: 'Autor agregado a la historia correctamente'
+      });
+    } catch (error) {
+      console.error('Error al agregar autor a la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al agregar autor a la historia',
+        message: error.message
+      });
+    }
+  }
+
+  static async removeHistoryAuthor(req, res) {
+    try {
+      await History.removeAuthor(req.params.id, req.params.authorId);
+      return res.json({
+        success: true,
+        message: 'Autor removido de la historia correctamente'
+      });
+    } catch (error) {
+      console.error('Error al remover autor de la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al remover autor de la historia',
+        message: error.message
+      });
+    }
+  }
+
+  static async getHistoryActors(req, res) {
+    try {
+      const actors = await History.getActors(req.params.id);
+      return res.json({
+        success: true,
+        data: actors
+      });
+    } catch (error) {
+      console.error('Error al obtener actores de la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al obtener actores de la historia',
+        message: error.message
+      });
+    }
+  }
+
+  static async addHistoryActor(req, res) {
+    try {
+      await History.addActor(req.params.id, req.body.actorId);
+      return res.json({
+        success: true,
+        message: 'Actor agregado a la historia correctamente'
+      });
+    } catch (error) {
+      console.error('Error al agregar actor a la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al agregar actor a la historia',
+        message: error.message
+      });
+    }
+  }
+
+  static async removeHistoryActor(req, res) {
+    try {
+      await History.removeActor(req.params.id, req.params.actorId);
+      return res.json({
+        success: true,
+        message: 'Actor removido de la historia correctamente'
+      });
+    } catch (error) {
+      console.error('Error al remover actor de la historia', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Error al remover actor de la historia',
+        message: error.message
       });
     }
   }

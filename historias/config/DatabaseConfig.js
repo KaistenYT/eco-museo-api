@@ -23,7 +23,7 @@ async function createActorTable() {
     console.error('Error al interactuar con la tabla "actor":', error);
     console.error('Detalles del error:', error);
   } else {
-    console.log('Tabla "actor" creada.');
+    console.log('Tabla "actor" creada. ');
   }
 }
 
@@ -62,7 +62,7 @@ async function createInitialTables() {
   await createActorTable();
   await createTableAuthor();
   await createHistoryTable();
-
+  console.log('Tablas iniciales existentes. 😁');
 }
 
 createInitialTables();

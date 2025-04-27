@@ -1,14 +1,15 @@
 {
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "pg": "^8.15.5",
-    "postgres": "^3.4.5"
+    "@supabase/supabase-js": "2.49.4",
+    "cors": "2.8.5",
+    "dotenv": "16.5.0",
+    "express": "5.1.0",
+    "pg": "8.15.5",
+    "postgres": "3.4.5",
+    "zod": "3.24.3"
   },
   "name": "historias",
-  "module": "index.ts",
+  "module": "server.js",
   "type": "module",
   "private": true,
   "devDependencies": {
