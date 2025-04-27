@@ -5,8 +5,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "pg": "^8.15.5",
-    "postgres": "^3.4.5",
-    "sqlite3": "^5.1.7"
+    "postgres": "^3.4.5"
   },
   "name": "historias",
   "module": "index.ts",
