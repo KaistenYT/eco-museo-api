@@ -5,11 +5,13 @@ dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase Key:', supabaseKey);
+console.log('Supabase Anon Key:', supabaseAnonKey);
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function createActorTable() {
   const { error } = await supabase
