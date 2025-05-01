@@ -4,7 +4,7 @@
     "": {
       "dependencies": {
         "@supabase/supabase-js": "2.49.4",
-        "cors": "2.8.5",
+        "cors": "^2.8.5",
         "dotenv": "16.5.0",
         "express": "5.1.0",
         "pg": "8.15.5",
@@ -15,7 +15,7 @@
         "@types/bun": "latest",
       },
       "peerDependencies": {
-        "typescript": "5",
+        "typescript": "^5",
       },
     },
   },
