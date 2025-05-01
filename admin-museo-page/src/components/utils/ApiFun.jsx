@@ -2,7 +2,8 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3000";
 
-
+//http://localhost:3000/actors/add
+//http://localhost:3000/actors/list
 export const getActors = () => axios.get(`${API_URL}/actors/list`);
 export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`);
 export const createActor = (actor) => axios.post(`${API_URL}/actors/add`, actor);

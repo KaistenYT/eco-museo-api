@@ -109,3 +109,6 @@ class Participation {
         }
     }
 }
+
+export default Participation
+
