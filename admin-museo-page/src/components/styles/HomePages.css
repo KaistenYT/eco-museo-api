@@ -1,0 +1,84 @@
+/* Efectos base para todas las tarjetas */
+.card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border-width: 2px !important;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Efectos específicos por color */
+.card.border-primary:hover {
+  border-color: #0b5ed7 !important;
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+.card.border-success:hover {
+  border-color: #198754 !important;
+  background-color: rgba(25, 135, 84, 0.05);
+}
+
+.card.border-warning:hover {
+  border-color: #ffc107 !important;
+  background-color: rgba(255, 193, 7, 0.05);
+}
+
+.card.border-info:hover {
+  border-color: #0dcaf0 !important;
+  background-color: rgba(13, 202, 240, 0.05);
+}
+
+/* Animación para íconos */
+.card i {
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.card:hover i {
+  transform: rotate(5deg) scale(1.15);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: rotate(5deg) scale(1.15); }
+  50% { transform: rotate(5deg) scale(1.25); }
+  100% { transform: rotate(5deg) scale(1.15); }
+}
+
+/* Efecto para títulos */
+.card-title {
+  transition: all 0.3s ease;
+  position: relative;
+  font-weight: 600;
+}
+
+.card-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: currentColor;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.card:hover .card-title::after {
+  width: 50%;
+}
+
+/* Estilos para el encabezado */
+.display-4 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.lead {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
