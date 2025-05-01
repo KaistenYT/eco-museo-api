@@ -13,7 +13,7 @@ console.log('Supabase Anon Key:', supabaseAnonKey);
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-async function createActorTable() {
+async function connectActorTable() {
   const { error } = await supabase
     .from('actor')
     .insert([])
@@ -27,7 +27,7 @@ async function createActorTable() {
   }
 }
 
-async function createTableAuthor() {
+async function connectTableAuthor() {
   const { error } = await supabase
     .from('author')
     .insert([]);
@@ -42,7 +42,7 @@ async function createTableAuthor() {
 }
     
 
-async function createHistoryTable() {
+async function connectHistoryTable() {
   const { data, error } = await supabase //added data
     .from('history')
     .insert([]);
@@ -56,15 +56,30 @@ async function createHistoryTable() {
   }
 }
 
+async function connectParticipationTable() {
+  const { error } = await supabase
+    .from('participation')
+    .insert([]);
+    //.single(); Removed .single()
+
+  if (error) {
+    console.error('Error al interactuar con la tabla "participation":', error);
+    console.error('Detalles del error:', error);
+  } else {
+    console.log('Tabla "participation" creada.');
+  }
+}
 
 
-async function createInitialTables() {
-  await createActorTable();
-  await createTableAuthor();
-  await createHistoryTable();
+
+async function connectInitialTables() {
+  await connectActorTable();
+  await connectTableAuthor();
+  await connectHistoryTable();
+  await connectParticipationTable();
   console.log('Tablas iniciales existentes. 😁');
 }
 
-createInitialTables();
+connectInitialTables();
 
 export default supabase;
