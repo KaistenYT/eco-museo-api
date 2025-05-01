@@ -39,7 +39,7 @@ const HomePage = () => {
 
         {/* Botón Historias */}
         <div className="col-md-6 col-lg-3">
-          <Link to="/stories" className="text-decoration-none">
+          <Link to="/histories" className="text-decoration-none">
             <div className="card h-100 border-warning">
               <div className="card-body text-center py-4">
                 <i className="bi bi-book-fill fs-1 text-warning mb-3"></i>

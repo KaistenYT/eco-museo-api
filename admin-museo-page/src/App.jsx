@@ -1,31 +1,72 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Components
 import { BarraNav } from './components/templates/BarraNav';
 import Footer from './components/templates/Footer';
-import ActorTable from './components/Actor/ActorTable';
 import HomePage from './components/pages/HomePage';
+
+// Actors
+import ActorTable from './components/Actor/ActorTable';
+import AddActorForm from './components/Actor/AddActorForm';
+import EditActorForm from './components/Actor/EditActorForm';
+
+// Authors
+import AuthorTable from './components/Author/AuthorTable';
+import AddAuthorForm from './components/Author/AddAuthorForm';
+import EditAuthorForm from './components/Author/EditAuthorForm';
+
+// Histories
+import HistoryTable from './components/Histories/HistoryTable';
+import AddHistoryForm from './components/Histories/AddHistoryForm';
+import EditHistoryForm from './components/Histories/EditHistoryForm';
+
+// Participations
+import ParticipationTable from './components/Participations/ParticipationTable';
+import AddParticipationForm from './components/Participations/AddParticipationForm';
+import EditParticipationForm from './components/Participations/EditParticipationForm';
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
+      <div className="d-flex flex-column min-vh-100">
         <BarraNav />
         
-        <main className="main-content">
+        <main className="flex-grow-1">
           <Routes>
-            <Route 
-              path="/" 
-              element={<HomePage />} 
-            />
-            <Route 
-              path="/actors" 
-              element={<ActorTable />} 
-            />
-            {/* Agrega más rutas aquí */}
+            {/* Home */}
+            <Route path="/" element={<HomePage />} />
+            
+            {/* Actors */}
+            <Route path="/actors">
+              <Route index element={<ActorTable />} />
+              <Route path="add" element={<AddActorForm />} />
+              <Route path="edit/:id" element={<EditActorForm />} />
+            </Route>
+            
+            {/* Authors */}
+            <Route path="/authors">
+              <Route index element={<AuthorTable />} />
+              <Route path="add" element={<AddAuthorForm />} />
+              <Route path="edit/:id" element={<EditAuthorForm />} />
+            </Route>
+            
+            {/* Histories */}
+            <Route path="/histories">
+              <Route index element={<HistoryTable />} />
+              <Route path="add" element={<AddHistoryForm />} />
+              <Route path="edit/:id" element={<EditHistoryForm />} />
+            </Route>
+            
+            {/* Participations */}
+            <Route path="/participations">
+              <Route index element={<ParticipationTable />} />
+              <Route path="add" element={<AddParticipationForm />} />
+              <Route path="edit/:id" element={<EditParticipationForm />} />
+            </Route>
           </Routes>
         </main>
-
+        
         <Footer />
       </div>
     </Router>
