@@ -5,7 +5,7 @@ import { getAuthorById, updateAuthor } from '../utils/ApiFun';
 const EditAuthorForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -14,7 +14,7 @@ const EditAuthorForm = () => {
       try {
         const response = await getAuthorById(id);
         if (response.data.success) {
-          setNombre(response.data.data.nombre || '');
+          setDescripcion(response.data.data.descripcion || '');
         }
       } catch (error) {
         console.error('Error fetching author:', error);
@@ -32,7 +32,7 @@ const EditAuthorForm = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await updateAuthor(id, { nombre });
+      const response = await updateAuthor(id, { descripcion  });
       
       if (response.data.success) {
         alert('Autor actualizado exitosamente');
@@ -58,11 +58,11 @@ const EditAuthorForm = () => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Nombre:</label>
+          <label>Descripción:</label>
           <input
             type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
             className="form-control"
             required
             disabled={isSubmitting}

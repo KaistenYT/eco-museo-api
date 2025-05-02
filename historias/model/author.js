@@ -22,13 +22,10 @@ class Author {
       const { data, error } = await supabase
         .from('author')
         .select('*')
-        .eq('idAuthor', id)
+        .eq('idautor', id)
         .single();
 
-      if (error) {
-        console.error('Error al obtener autor por ID:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     } catch (error) {
       throw error;
@@ -58,14 +55,11 @@ class Author {
       const { data, error } = await supabase
         .from('author')
         .update(author)
-        .eq('idAuthor', id)
+        .eq('idautor', id)
         .select()
         .single();
 
-      if (error) {
-        console.error('Error al actualizar autor:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     } catch (error) {
       throw error;
@@ -77,14 +71,11 @@ class Author {
       const { data, error } = await supabase
         .from('author')
         .delete()
-        .eq('idAuthor', id)
+        .eq('idautor', id)
         .select()
         .single();
 
-      if (error) {
-        console.error('Error al eliminar autor:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     } catch (error) {
       throw error;

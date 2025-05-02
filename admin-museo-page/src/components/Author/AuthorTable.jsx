@@ -33,16 +33,20 @@ const AuthorTable = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este autor?')) {
-      return;
-    }
+    if (!window.confirm('¿Estás seguro de eliminar este autor?')) return;
     
     try {
-      await deleteAuthor(id);
-      await fetchAuthors(); // Refrescar la lista
-    } catch (err) {
-      console.error('Error:', err);
-      alert('Error al eliminar autor: ' + (err.response?.data?.message || err.message));
+      const response = await deleteAuthor(id);
+      
+      if (response.status !== 200 && response.status !== 204) {
+        throw new Error(response.data?.message || 'Error del servidor');
+      }
+      
+      alert('Autor eliminado exitosamente');
+      await fetchAuthors();
+    } catch (error) {
+      console.error('Error eliminando autor:', error);
+      alert(`Error: ${error.response?.data?.message || error.message || 'Error al eliminar'}`);
     }
   };
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createAuthor } from '../utils/ApiFun';
 
 const AddAuthorForm = () => {
-  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -12,14 +12,16 @@ const AddAuthorForm = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await createAuthor({ nombre });
+      const response = await createAuthor({ descripcion });
       if (response.data.success) {
         alert('Autor creado exitosamente');
         navigate('/authors');
+      } else {
+        alert(response.data.message || 'Error al crear autor');
       }
     } catch (error) {
-      console.error('Error al crear autor:', error);
-      alert('Error al crear autor');
+      console.error('Error:', error);
+      alert('Error de conexión: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -31,11 +33,12 @@ const AddAuthorForm = () => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Nombre:</label>
+          <label>Descripción:</label>
           <input
             type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            name="descripcion"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
             className="form-control"
             required
             disabled={isSubmitting}
