@@ -7,7 +7,7 @@ const AddActorForm = ({ onActorAdded }) => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     descripcion: '',
-    caracteristicas: ''
+    
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -29,7 +29,7 @@ const AddActorForm = ({ onActorAdded }) => {
       if (response.data.success) {
         setFormData({
           descripcion: '',
-          caracteristicas: ''
+          
         })
         
         if (onActorAdded) onActorAdded()
@@ -64,19 +64,6 @@ const AddActorForm = ({ onActorAdded }) => {
             value={formData.descripcion}
             onChange={handleChange}
             className="form-control"
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Características:</label>
-          <textarea
-            name="caracteristicas"
-            value={formData.caracteristicas}
-            onChange={handleChange}
-            className="form-control"
-            rows="4"
             required
             disabled={isSubmitting}
           />

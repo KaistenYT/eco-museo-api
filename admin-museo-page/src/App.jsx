@@ -21,10 +21,6 @@ import HistoryTable from './components/Histories/HistoryTable';
 import AddHistoryForm from './components/Histories/AddHistoryForm';
 import EditHistoryForm from './components/Histories/EditHistoryForm';
 
-// Participations
-import ParticipationTable from './components/Participations/ParticipationTable';
-import AddParticipationForm from './components/Participations/AddParticipationForm';
-import EditParticipationForm from './components/Participations/EditParticipationForm';
 
 function App() {
   return (
@@ -56,13 +52,6 @@ function App() {
               <Route index element={<HistoryTable />} />
               <Route path="add" element={<AddHistoryForm />} />
               <Route path="edit/:id" element={<EditHistoryForm />} />
-            </Route>
-            
-            {/* Participations */}
-            <Route path="/participations">
-              <Route index element={<ParticipationTable />} />
-              <Route path="add" element={<AddParticipationForm />} />
-              <Route path="edit/:id" element={<EditParticipationForm />} />
             </Route>
           </Routes>
         </main>

@@ -1,6 +1,6 @@
-import supabase from '../config/DatabaseConfig'; // Importa tu instancia de Supabase
+import supabase from '../config/DatabaseConfig';
 
-class History {
+export default class History {
   static async getAll() {
     try {
       const { data, error } = await supabase
@@ -8,10 +8,10 @@ class History {
         .select('*');
 
       if (error) {
-        console.error('Error al obtener todas las historias:', error);
+        console.error('Error al obtener historias:', error);
         throw error;
       }
-      return data;
+      return data || [];
     } catch (error) {
       throw error;
     }
@@ -21,12 +21,16 @@ class History {
     try {
       const { data, error } = await supabase
         .from('history')
-        .select('*')
+        .select(`
+          *,
+          historia_actor:historia_actor(idactor, actor:actor(idautor, descripcion)),
+          historia_autor:historia_autor(idautor, autor:autor(idautor, descripcion))
+        `)
         .eq('idhistory', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('Error al obtener historia por ID:', error);
+        console.error('Error al obtener historia:', error);
         throw error;
       }
       return data;
@@ -35,38 +39,112 @@ class History {
     }
   }
 
-  static async create(history) {
+  static async create(historyData) {
     try {
-      const { data, error } = await supabase
+      // First create the history record
+      const { data: history, error: historyError } = await supabase
         .from('history')
-        .insert([history])
+        .insert({
+          titulo: historyData.titulo,
+          descripcion: historyData.descripcion,
+          idactor: historyData.actores_ids[0] || null,
+          idautor: historyData.autores_ids[0] || null
+        })
         .select()
         .single();
-
-      if (error) {
-        console.error('Error al crear historia:', error);
-        throw error;
+  
+      if (historyError) throw historyError;
+  
+      // Then create actor relationships
+      if (historyData.actores_ids && historyData.actores_ids.length > 0) {
+        const actorInserts = historyData.actores_ids.map(idactor => ({
+          idhistory: history.idhistory,
+          idactor
+        }));
+  
+        await supabase
+          .from('historia_actor')
+          .insert(actorInserts);
       }
-      return data;
+  
+      // Then create author relationships
+      if (historyData.autores_ids && historyData.autores_ids.length > 0) {
+        const autorInserts = historyData.autores_ids.map(idautor => ({
+          idhistory: history.idhistory,
+          idautor
+        }));
+  
+        await supabase
+          .from('historia_autor')
+          .insert(autorInserts);
+      }
+  
+      return history;
     } catch (error) {
       throw error;
     }
   }
 
-  static async update(id, history) {
+  static async update(id, historyData) {
     try {
-      const { data, error } = await supabase
+      // First update the history record
+      const { data: history, error: historyError } = await supabase
         .from('history')
-        .update(history)
+        .update({
+          titulo: historyData.titulo,
+          descripcion: historyData.descripcion,
+          idactor: historyData.actores_ids[0] ,
+          idautor: historyData.autores_ids[0]
+        })
         .eq('idhistory', id)
         .select()
         .single();
-
-      if (error) {
-        console.error('Error al actualizar historia:', error);
-        throw error;
+  
+      if (historyError) throw historyError;
+  
+      // Then update actor relationships
+      if (historyData.actores_ids) {
+        // Delete existing relationships
+        await supabase
+          .from('historia_actor')
+          .delete()
+          .eq('idhistory', id);
+  
+        // Create new relationships if any
+        if (historyData.actores_ids.length > 0) {
+          const actorInserts = historyData.actores_ids.map(idactor => ({
+            idhistory: id,
+            idactor
+          }));
+  
+          await supabase
+            .from('historia_actor')
+            .insert(actorInserts);
+        }
       }
-      return data;
+  
+      // Then update author relationships
+      if (historyData.autores_ids) {
+        // Delete existing relationships
+        await supabase
+          .from('historia_autor')
+          .delete()
+          .eq('idhistory', id);
+  
+        // Create new relationships if any
+        if (historyData.autores_ids.length > 0) {
+          const autorInserts = historyData.autores_ids.map(idautor => ({
+            idhistory: id,
+            idautor
+          }));
+  
+          await supabase
+            .from('historia_autor')
+            .insert(autorInserts);
+        }
+      }
+  
+      return history;
     } catch (error) {
       throw error;
     }
@@ -74,40 +152,16 @@ class History {
 
   static async delete(id) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('history')
         .delete()
-        .eq('idhistory', id)
-        .select()
-        .single();
+        .eq('idhistory', id);
 
       if (error) {
-        console.error('Error al eliminar historia:', error);
         throw error;
       }
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
- 
-
-
-  static async removeActor(historyId, actorId) {
-    try {
-      const { data, error } = await supabase
-        .from('history_actor')
-        .delete()
-        .eq('history_id', historyId)
-        .eq('actor_id', actorId);
-
-      if (error) throw error;
-      return data;
     } catch (error) {
       throw error;
     }
   }
 }
-
-export default History;

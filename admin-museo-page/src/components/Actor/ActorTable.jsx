@@ -52,7 +52,7 @@ const ActorTable = () => {
         <thead className="table-dark">
           <tr>
             <th scope="col">Descripción</th>
-            <th scope="col">Características</th>
+          
             <th scope="col">Acciones</th>
           </tr>
         </thead>
@@ -61,7 +61,7 @@ const ActorTable = () => {
             actors.map((actor) => (
               <tr key={actor.idactor}>
                 <td>{actor.descripcion || 'N/A'}</td>
-                <td>{actor.caracteristicas || 'N/A'}</td>
+                
                 <td>
                   <Link 
                     to={`/actors/edit/${actor.idactor}`} 

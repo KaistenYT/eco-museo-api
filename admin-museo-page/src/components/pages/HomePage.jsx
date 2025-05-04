@@ -49,17 +49,7 @@ const HomePage = () => {
           </Link>
         </div>
 
-        {/* Botón Participaciones */}
-        <div className="col-md-6 col-lg-3">
-          <Link to="/participations" className="text-decoration-none">
-            <div className="card h-100 border-info">
-              <div className="card-body text-center py-4">
-                <i className="bi bi-diagram-3-fill fs-1 text-info mb-3"></i>
-                <h3 className="card-title">Participaciones</h3>
-              </div>
-            </div>
-          </Link>
-        </div>
+       
       </div>
     </div>
   )

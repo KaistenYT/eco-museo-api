@@ -4,7 +4,7 @@ class Author {
   static async getAll() {
     try {
       const { data, error } = await supabase
-        .from('author')
+        .from('autor')
         .select('*');
 
       if (error) {
@@ -20,7 +20,7 @@ class Author {
   static async getById(id) {
     try {
       const { data, error } = await supabase
-        .from('author')
+        .from('autor')
         .select('*')
         .eq('idautor', id)
         .single();
@@ -35,7 +35,7 @@ class Author {
   static async create(author) {
     try {
       const { data, error } = await supabase
-        .from('author')
+        .from('autor')
         .insert([author])
         .select()
         .single();
@@ -53,7 +53,7 @@ class Author {
   static async update(id, author) {
     try {
       const { data, error } = await supabase
-        .from('author')
+        .from('autor')
         .update(author)
         .eq('idautor', id)
         .select()
@@ -69,7 +69,7 @@ class Author {
   static async delete(id) {
     try {
       const { data, error } = await supabase
-        .from('author')
+        .from('autor')
         .delete()
         .eq('idautor', id)
         .select()

@@ -44,18 +44,64 @@ export class HistoryController {
 
   static async createHistory(req, res) {
     try {
-      const newHistory = await History.create(req.body);
-      return res.status(201).json({
-        success: true,
-        message: 'Historia creada correctamente',
-        data: newHistory
-      });
+      // Validar datos de entrada
+      const { titulo, descripcion } = req.body;
+      
+      if (!titulo || !descripcion) {
+        return res.status(400).json({
+          success: false,
+          error: 'Datos inválidos',
+          message: 'Título y descripción son campos requeridos'
+        });
+      }
+
+      // Preparar los datos para el modelo
+      const historyData = {
+        titulo,
+        descripcion,
+        actores_ids: req.body.actores_ids || [],
+        autores_ids: req.body.autores_ids || []
+      };
+
+      console.log('Datos preparados:', historyData);
+      
+      try {
+        const newHistory = await History.create(historyData);
+        console.log('Historia creada:', newHistory);
+        return res.status(201).json({
+          success: true,
+          message: 'Historia creada correctamente',
+          data: newHistory
+        });
+      } catch (error) {
+        console.error('Error detallado en el modelo:', {
+          message: error.message,
+          stack: error.stack,
+          body: historyData
+        });
+        
+        // Manejar errores específicos de Supabase
+        if (error.code === '23502') { // Not-null violation
+          return res.status(400).json({
+            success: false,
+            error: 'Datos inválidos',
+            message: 'Todos los campos requeridos deben tener valores'
+          });
+        }
+        
+        return res.status(500).json({
+          success: false,
+          error: 'Error interno del servidor',
+          message: error.message,
+          details: error.details || 'Por favor, verifique los logs del servidor para más detalles'
+        });
+      }
     } catch (error) {
-      console.error('Error al crear la historia', error);
+      console.error('Error general en el controlador:', error);
       return res.status(500).json({
         success: false,
-        message: 'Error al crear la historia',
-        error: error.message
+        error: 'Error interno del servidor',
+        message: error.message
       });
     }
   }
