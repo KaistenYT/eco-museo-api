@@ -23,7 +23,7 @@ const HistoryTable = () => {
     });
   };
 
-  // Manejador de la сортировка
+
   const handleSort = (key) => {
     setSortConfig((prevConfig) => ({
       key,
