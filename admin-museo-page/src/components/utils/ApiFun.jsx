@@ -2,14 +2,14 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3000";
 
-//http://localhost:3000/actors/add
-//http://localhost:3000/actors/list
+// Actors API
 export const getActors = () => axios.get(`${API_URL}/actors/list`);
 export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`);
 export const createActor = (actor) => axios.post(`${API_URL}/actors/add`, actor);
 export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/update/${id}`, actor);
 export const deleteActor = (id) => axios.delete(`${API_URL}/actors/delete/${id}`);
 
+// Authors API
 export const getAuthors = () => axios.get(`${API_URL}/authors/list`);
 export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`);
 export const createAuthor = (authorData) => axios.post(`${API_URL}/authors/add`, {
@@ -18,81 +18,85 @@ export const createAuthor = (authorData) => axios.post(`${API_URL}/authors/add`,
 export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/update/${id}`, author);
 export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/delete/${id}`);
 
+// Histories API
 export const createHistory = async (historyData) => {
-  try {
-    // Send all data in a single request
-    const response = await axios.post(`${API_URL}/histories/add`, {
-      titulo: historyData.titulo,
-      descripcion: historyData.descripcion,
-      idactor: historyData.idactor || null,
-      idautor: historyData.idautor || null,
-      actores_ids: historyData.actores_ids || [],
-      autores_ids: historyData.autores_ids || []
-    });
+  const idactor = historyData.idactor === '' ? null : historyData.idactor;
+  const idautor = historyData.idautor === '' ? null : historyData.idautor;
 
-    if (!response.data.success) {
-      throw new Error(response.data.message);
-    }
-    return response;
-  } catch (error) {
-    console.error('Error creating history:', error);
-    throw error;
+  const dataToSend = {
+    titulo: historyData.titulo,
+    descripcion: historyData.descripcion,
+    idactor,
+    idautor,
+    actores_ids: historyData.actores_ids || [],
+    autores_ids: historyData.autores_ids || []
+  };
+
+  const response = await axios.post(`${API_URL}/histories/add`, dataToSend);
+  if (!response.data.success) {
+    throw new Error(response.data.message);
   }
+  return response;
 };
 
 export const updateHistory = async (id, historyData) => {
-  try {
-    const response = await axios.put(`${API_URL}/histories/update/${id}`, {
-      titulo: historyData.titulo,
-      descripcion: historyData.descripcion,
-      idactor: historyData.idactor || null,
-      idautor: historyData.idautor || null,
-      actores_ids: historyData.actores_ids || [],
-      autores_ids: historyData.autores_ids || []
-    });
+  const idactor = historyData.idactor === '' ? null : historyData.idactor;
+  const idautor = historyData.idautor === '' ? null : historyData.idautor;
 
-    if (!response.data.success) {
-      throw new Error(response.data.message);
-    }
-    return response;
-  } catch (error) {
-    console.error('Error updating history:', error);
-    throw error;
+  const dataToSend = {
+    titulo: historyData.titulo,
+    descripcion: historyData.descripcion,
+    idactor,
+    idautor,
+    actores_ids: historyData.actores_ids || [],
+    autores_ids: historyData.autores_ids || []
+  };
+
+  const response = await axios.put(`${API_URL}/histories/update/${id}`, dataToSend);
+  if (!response.data.success) {
+    throw new Error(response.data.message);
   }
+  return response;
 };
 
-export const deleteHistory = async (id) => {
-  try {
-    const response = await axios.delete(`${API_URL}/histories/delete/${id}`);
-    return response;
-  } catch (error) {
-    console.error('Error deleting history:', error);
-    throw error;
-  }
-};
+export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`);
 
 export const getHistoryById = async (id) => {
-  try {
-    const response = await axios.get(`${API_URL}/histories/${id}`);
-    return response;
-  } catch (error) {
-    console.error('Error getting history:', error);
-    throw error;
-  }
+  const response = await axios.get(`${API_URL}/histories/${id}`);
+  return response;
 };
 
 export const getHistories = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/histories/list`);
-    return response;
-  } catch (error) {
-    console.error('Error getting histories:', error);
-    throw error;
+  const response = await axios.get(`${API_URL}/histories/list`);
+  if (!response.data.success) {
+    throw new Error(response.data.message);
   }
-};
 
-/*export const getParticipations = () => axios.get(`${API_URL}/participations/list`);
-export const getParticipationById = (id) => axios.get(`${API_URL}/participations/${id}`);
-export const createParticipation = (participation) => axios.post(`${API_URL}/participations/add`, participation);
-export const updateParticipation = (id, participation) => axios.put(`${API_URL}/participations/update/${id}`, participation);
-export const deleteParticipation = (id) => axios.delete(`${API_URL}/participations/delete/${id}`);*/
+  const histories = response.data.data;
+  const actorResponse = await axios.get(`${API_URL}/actors/list`);
+  const autorResponse = await axios.get(`${API_URL}/authors/list`);
+
+  if (!actorResponse.data.success || !autorResponse.data.success) {
+    throw new Error('Error al obtener actores/autores');
+  }
+
+  const actors = actorResponse.data.data || [];
+  const authors = autorResponse.data.data || [];
+
+  const historiesWithRelations = histories.map(history => ({
+    ...history,
+    actores_ids: actors
+      .filter(actor => actor.idhistory === history.idhistory)
+      .map(actor => actor.idactor),
+    autores_ids: authors
+      .filter(author => author.idhistory === history.idhistory)
+      .map(author => author.idautor)
+  }));
+
+  return {
+    data: {
+      success: true,
+      data: historiesWithRelations
+    }
+  };
+};

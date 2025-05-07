@@ -1,7 +1,6 @@
 import History from "../model/history";
 
 export class HistoryController {
-
   static async getAllHistory(req, res) {
     try {
       const history = await History.getAll();
@@ -44,6 +43,13 @@ export class HistoryController {
 
   static async createHistory(req, res) {
     try {
+      // Log completo de los datos recibidos
+      console.log('Body completo de la petición:', JSON.stringify(req.body, null, 2));
+      console.log('Tipo de idactor:', typeof req.body.idactor);
+      console.log('Valor de idactor:', req.body.idactor);
+      console.log('Tipo de idautor:', typeof req.body.idautor);
+      console.log('Valor de idautor:', req.body.idautor);
+      
       // Validar datos de entrada
       const { titulo, descripcion } = req.body;
       
@@ -55,15 +61,26 @@ export class HistoryController {
         });
       }
 
+      // Extraer todos los datos relevantes del body
+      console.log('Verificando datos del cuerpo de la petición:');
+      console.log('idactor:', req.body.idactor, 'tipo:', typeof req.body.idactor);
+      console.log('idautor:', req.body.idautor, 'tipo:', typeof req.body.idautor);
+
+      // Procesar explícitamente idactor e idautor para asegurar que lleguen al modelo
+      const idactor = req.body.idactor === '' ? null : req.body.idactor;
+      const idautor = req.body.idautor === '' ? null : req.body.idautor;
+
       // Preparar los datos para el modelo
       const historyData = {
         titulo,
         descripcion,
+        idactor, // Usamos las variables procesadas en lugar de directamente req.body
+        idautor, // Usamos las variables procesadas en lugar de directamente req.body
         actores_ids: req.body.actores_ids || [],
         autores_ids: req.body.autores_ids || []
       };
 
-      console.log('Datos preparados:', historyData);
+      console.log('Datos preparados para enviar al modelo:', JSON.stringify(historyData, null, 2));
       
       try {
         const newHistory = await History.create(historyData);
@@ -132,28 +149,46 @@ export class HistoryController {
 
   static async deleteHistory(req, res) {
     try {
-      const deletedHistory = await History.delete(req.params.id); 
-      if (!deletedHistory) {
-        return res.status(404).json({
-          success: false,
-          error: 'Historia no encontrada'
-        });
-      }
+      const historyId = req.params.id;
+      console.log(`[DELETE HISTORY] Eliminando historia con ID ${historyId}...`);
+      
+      // Intentar eliminar la historia
+      await History.delete(historyId);
+      
+      // Si llegamos aquí, la historia se eliminó correctamente
+      console.log(`[DELETE HISTORY] Historia ${historyId} eliminada exitosamente`);
       return res.json({
         success: true,
-        message: 'Historia eliminada correctamente',
-        data: deletedHistory 
+        message: 'Historia eliminada exitosamente'
       });
     } catch (error) {
-      console.error('Error al eliminar la historia', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error al eliminar la historia',
-        error: error.message
-      });
+      console.error('[DELETE HISTORY] Error al eliminar historia:', error);
+      
+      // Proporcionar mensajes de error más específicos basados en el mensaje de error
+      if (error.message.includes('relaciones')) {
+        return res.status(400).json({
+          success: false,
+          error: 'RELATION_ERROR',
+          message: 'No se pudieron eliminar las relaciones de la historia'
+        });
+      } else if (error.message.includes('no encontrada')) {
+        return res.status(404).json({
+          success: false,
+          error: 'NOT_FOUND',
+          message: 'La historia no existe'
+        });
+      } else if (error.message.includes('filas')) {
+        return res.status(400).json({
+          success: false,
+          error: 'NO_ROWS_DELETED',
+          message: 'No se eliminó ninguna fila'
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: 'INTERNAL_ERROR',
+          message: `Error inesperado al eliminar la historia: ${error.message}`
+        });
+      }
     }
-  }
-
- 
-
-}
+  }}

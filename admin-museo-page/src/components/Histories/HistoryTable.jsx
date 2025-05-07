@@ -1,131 +1,117 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { getHistories, deleteHistory, getActors, getAuthors } from '../utils/ApiFun'
-import { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { getHistories, deleteHistory } from '../utils/ApiFun';
 
 const HistoryTable = () => {
-  const [histories, setHistories] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortConfig, setSortConfig] = useState({
-    key: 'titulo',
-    direction: 'asc'
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [histories, setHistories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'titulo', direction: 'asc' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Sort function
+  // Función para ordenar las historias
   const sortHistories = (histories, key, direction) => {
     return [...histories].sort((a, b) => {
-      const aValue = a[key]?.toString() || ''
-      const bValue = b[key]?.toString() || ''
-      
+      const aValue = a[key]?.toString().toLowerCase() || '';
+      const bValue = b[key]?.toString().toLowerCase() || '';
+
       if (direction === 'asc') {
-        return aValue.localeCompare(bValue)
+        return aValue.localeCompare(bValue);
       } else {
-        return bValue.localeCompare(aValue)
+        return bValue.localeCompare(aValue);
       }
-    })
-  }
+    });
+  };
 
-  // Handle sorting
+  // Manejador de la сортировка
   const handleSort = (key) => {
-    const isAsc = sortConfig.key === key && sortConfig.direction === 'asc'
-    setSortConfig({
+    setSortConfig((prevConfig) => ({
       key,
-      direction: isAsc ? 'desc' : 'asc'
-    })
-  }
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
 
-  // Filter function
+  // Función para filtrar las historias
   const filterHistories = (histories, searchTerm) => {
-    return histories.filter(history => 
-      history.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      history.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return histories.filter((history) =>
+      (history.titulo?.toLowerCase().includes(lowerSearchTerm) || '') ||
+      (history.descripcion?.toLowerCase().includes(lowerSearchTerm) || '')
+    );
+  };
 
-  const [actors, setActors] = useState([])
-  const [authors, setAuthors] = useState([])  
-
-  useEffect(() => {
-    const fetchActorsAuthors = async () => {
-      try {
-        const [actorsData , authorsData] = await Promise.all([
-          getActors(),
-          getAuthors()
-        ])
-        
-        if (actorsData.data?.success) {
-          setActors(actorsData.data.data)
-        }
-        if (authorsData.data?.success) {
-          setAuthors(authorsData.data.data)
-        }
-      } catch (error) {
-        console.error('Error al obtener actores:', error)
-        setError('Error al cargar los actores')
-      }
-    }
-    fetchActorsAuthors()
-  }, [])
-
-  const getNameById = (id, array) => {
-    const item = array.find(item => item.id === id)
-    return item ? item.name : 'Unknown'
-  }
-
-  const displayActorName = (actorId) => {
-    return getNameById(actorId, actors)
-  }
-
-  const displayAuthorName = (authorId) => {
-    return getNameById(authorId, authors)
-  }
-
+  // Efecto para cargar las historias
   useEffect(() => {
     const fetchHistories = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true)
-        setError(null)
-        const { data } = await getHistories();
-        
-        if (data && data.success && Array.isArray(data.data)) {
-          setHistories(data.data);
+        const response = await getHistories();
+        if (response?.data?.success && Array.isArray(response.data.data)) {
+          setHistories(response.data.data);
         } else {
-          throw new Error('Formato de datos inesperado')
+          setError('Error al cargar las historias');
         }
       } catch (error) {
-        console.error('Error al obtener historias:', error)
-        setError('Error al cargar las historias')
+        console.error('Error al obtener historias:', error);
+        setError('Error al cargar las historias.');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchHistories()
-  }, [])
+    };
 
+    fetchHistories();
+  }, []);
+
+  // Manejador para eliminar una historia
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de eliminar esta historia?')) {
-      return
+      return;
     }
-    
+
     try {
-      const response = await deleteHistory(id)
+      setHistories((prevHistories) => prevHistories.filter((history) => history.idhistory !== id));
+      const response = await deleteHistory(id);
       
-      if (response.data.success) {
-        setHistories(histories.filter(history => history.idhistory !== id))
-        alert('Historia eliminada exitosamente')
+      if (response?.data?.success) {
+        const refreshResponse = await getHistories();
+        if (refreshResponse?.data?.success && Array.isArray(refreshResponse.data.data)) {
+          setHistories(refreshResponse.data.data);
+          alert(`Historia eliminada exitosamente.`);
+        } else {
+          throw new Error('Error al recargar las historias después de la eliminación.');
+        }
+      } else if (response?.data?.message) {
+        throw new Error(response.data.message);
       } else {
-        throw new Error(response.data.message)
+        throw new Error('Error al eliminar la historia: Formato de respuesta inesperado.');
       }
     } catch (error) {
-      console.error('Error al eliminar historia:', error)
-      alert('Error al eliminar historia: ' + error.message)
+      let errorMessage = 'Error al eliminar la historia.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+        if (error.response.data.error === 'Historia no encontrada') {
+          errorMessage += `\nID de la historia: ${id}`;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
+      
+      setHistories((prevHistories) => {
+        const restoredHistories = [...prevHistories];
+        restoredHistories.push({ idhistory: id });
+        return restoredHistories;
+      });
+      
+      throw error;
     }
-  }
+  };
 
-  const filteredHistories = filterHistories(histories, searchTerm)
-  const sortedHistories = sortHistories(filteredHistories, sortConfig.key, sortConfig.direction)
+  // Filtrar y ordenar las historias
+  const filteredHistories = filterHistories(histories, searchTerm);
+  const sortedHistories = sortHistories(filteredHistories, sortConfig.key, sortConfig.direction);
 
   return (
     <div className="container mt-4">
@@ -174,21 +160,45 @@ const HistoryTable = () => {
                 <div key={history.idhistory} className="col-md-6 col-lg-4">
                   <div className="card h-100">
                     <div className="card-body">
-                      <h5 className="card-title mb-3">
-                        {history.titulo || 'Sin título'}
-                      </h5>
-                      <p className="card-text mb-3">
-                        {history.descripcion || 'Sin descripción'}
-                      </p>
-                      
+                      <h5 className="card-title mb-3">{history.titulo || 'Sin título'}</h5>
+                      <p className="card-text mb-3">{history.descripcion || 'Sin descripción'}</p>
+
                       <div className="mb-3">
-                        <h6 className="card-subtitle text-muted mb-2">Actores:</h6>
-                        <div className="d-flex flex-wrap gap-2">
-                          {history.historia_actor?.map((actor) => (
-                            <span key={actor.idactor} className="badge bg-primary">
-                              {displayActorName(actor.idactor)}
+                        <h6 className="card-subtitle text-muted mb-2">Actor Principal:</h6>
+                        <div>
+                          {history.actores && history.actores[0] ? (
+                            <span className="badge bg-primary">
+                              {history.actores[0].actor.descripcion || 'Sin actor principal'}
                             </span>
-                          )) || (
+                          ) : (
+                            <span className="text-muted">Sin actor principal</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <h6 className="card-subtitle text-muted mb-2">Autor Principal:</h6>
+                        <div>
+                          {history.autores && history.autores[0] ? (
+                            <span className="badge bg-primary">
+                              {history.autores[0].autor.descripcion || 'Sin autor principal'}
+                            </span>
+                          ) : (
+                            <span className="text-muted">Sin autor principal</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <h6 className="card-subtitle text-muted mb-2">Actores Adicionales:</h6>
+                        <div className="d-flex flex-wrap gap-2">
+                          {Array.isArray(history.actores) && history.actores.length > 0 ? (
+                            history.actores.map((actorRelation) => (
+                              <span key={actorRelation.idactor} className="badge bg-primary">
+                                {actorRelation.actor?.descripcion || 'Nombre no encontrado'}
+                              </span>
+                            ))
+                          ) : (
                             <span className="text-muted">No hay actores asignados</span>
                           )}
                         </div>
@@ -197,35 +207,37 @@ const HistoryTable = () => {
                       <div className="mb-3">
                         <h6 className="card-subtitle text-muted mb-2">Autores:</h6>
                         <div className="d-flex flex-wrap gap-2">
-                          {history.historia_autor?.map((autor) => (
-                            <span key={autor.idautor} className="badge bg-success">
-                              {displayAuthorName(autor.idautor)}
-                            </span>
-                          )) || (
+                          {Array.isArray(history.autores) && history.autores.length > 0 ? (
+                            history.autores.map((autorRelation) => (
+                              <span key={autorRelation.idautor} className="badge bg-success">
+                                {autorRelation.autor?.descripcion || 'Nombre no encontrado'}
+                              </span>
+                            ))
+                          ) : (
                             <span className="text-muted">No hay autores asignados</span>
                           )}
                         </div>
                       </div>
+                    </div>
 
-                      <div className="mt-3">
-                        <div className="btn-group w-100">
-                          <Link 
-                            to={`/histories/edit/${history.idhistory}`} 
-                            className="btn btn-outline-primary w-50"
-                            title="Editar"
-                          >
-                            <i className="bi bi-pencil me-1"></i>
-                            Editar
-                          </Link>
-                          <button 
-                            className="btn btn-outline-danger w-50"
-                            onClick={() => handleDelete(history.idhistory)}
-                            title="Eliminar"
-                          >
-                            <i className="bi bi-trash me-1"></i>
-                            Eliminar
-                          </button>
-                        </div>
+                    <div className="card-footer bg-transparent border-top-0">
+                      <div className="btn-group w-100">
+                        <Link
+                          to={`/histories/edit/${history.idhistory}`}
+                          className="btn btn-outline-primary w-50"
+                          title="Editar"
+                        >
+                          <i className="bi bi-pencil me-1"></i>
+                          Editar
+                        </Link>
+                        <button
+                          className="btn btn-outline-danger w-50"
+                          onClick={() => handleDelete(history.idhistory)}
+                          title="Eliminar"
+                        >
+                          <i className="bi bi-trash me-1"></i>
+                          Eliminar
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -240,7 +252,7 @@ const HistoryTable = () => {
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default HistoryTable
+export default HistoryTable;
