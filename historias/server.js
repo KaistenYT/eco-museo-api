@@ -9,7 +9,7 @@ import participationRoutes from './routes/participationRoutes';
 
 require('dotenv').config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.disable('x-powered-by');
 app.use(cors());
