@@ -9,7 +9,31 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "/$1"
+            "dest": "server.js"
+        },
+        {
+            "src": "/health",
+            "dest": "/health"
+        },
+        {
+            "src": "/actors/(.*)",
+            "dest": "server.js"
+        },
+        {
+            "src": "/authors/(.*)",
+            "dest": "/authors/$1"
+        },
+        {
+            "src": "/histories/(.*)",
+            "dest": "/histories/$1"
+        },
+        {
+            "src": "/participations/(.*)",
+            "dest": "/participations/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/"
         }
     ]
 }
