@@ -8,16 +8,12 @@
     ],
     "routes": [
         {
-            "src": "/(.*)",
-            "dest": "server.js"
-        },
-        {
             "src": "/health",
             "dest": "/health"
         },
         {
             "src": "/actors/(.*)",
-            "dest": "server.js"
+            "dest": "/actors/$1"
         },
         {
             "src": "/authors/(.*)",
@@ -33,7 +29,17 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/"
+            "dest": "server.js"
+        }
+    ],
+    "env": {
+        "SUPABASE_URL": "@supabase_url",
+        "SUPABASE_ANON_KEY": "@supabase_anon_key"
+    },
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "/$1"
         }
     ]
 }

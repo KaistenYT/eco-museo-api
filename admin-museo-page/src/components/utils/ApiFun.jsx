@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.REACT_APP_URL_BASE || "http://localhost:3001";
+const API_URL = import.meta.env.VITE_URL_BASE;
 
 // Actors API
 export const getActors = () => axios.get(`${API_URL}/actors/list`);

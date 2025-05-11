@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getHistories, deleteHistory } from '../utils/ApiFun';
+import { getHistories, deleteHistory, getActors, getAuthors } from '../utils/ApiFun';
 
 const HistoryTable = () => {
   const [histories, setHistories] = useState([]);
+  const [allActors, setAllActors] = useState([]);
+  const [allAuthors, setAllAuthors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'titulo', direction: 'asc' });
   const [loading, setLoading] = useState(true);
@@ -40,27 +42,35 @@ const HistoryTable = () => {
     );
   };
 
-  // Efecto para cargar las historias
+  // Efecto para cargar las historias y actores/autores globales
   useEffect(() => {
-    const fetchHistories = async () => {
+    const fetchAll = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await getHistories();
-        if (response?.data?.success && Array.isArray(response.data.data)) {
-          setHistories(response.data.data);
+        const [historiesRes, actorsRes, authorsRes] = await Promise.all([
+          getHistories(),
+          getActors(),
+          getAuthors()
+        ]);
+        if (
+          historiesRes?.data?.success && Array.isArray(historiesRes.data.data) &&
+          actorsRes?.data?.success && Array.isArray(actorsRes.data.data) &&
+          authorsRes?.data?.success && Array.isArray(authorsRes.data.data)
+        ) {
+          setHistories(historiesRes.data.data);
+          setAllActors(actorsRes.data.data);
+          setAllAuthors(authorsRes.data.data);
         } else {
-          setError('Error al cargar las historias');
+          setError('Error al cargar historias, actores o autores');
         }
       } catch (error) {
-        console.error('Error al obtener historias:', error);
-        setError('Error al cargar las historias.');
+        setError('Error al cargar historias, actores o autores.', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchHistories();
+    fetchAll();
   }, []);
 
   // Manejador para eliminar una historia
@@ -166,26 +176,38 @@ const HistoryTable = () => {
                       <div className="mb-3">
                         <h6 className="card-subtitle text-muted mb-2">Actor Principal:</h6>
                         <div>
-                          {history.actores && history.actores[0] ? (
-                            <span className="badge bg-primary">
-                              {history.actores[0].actor.descripcion || 'Sin actor principal'}
-                            </span>
-                          ) : (
-                            <span className="text-muted">Sin actor principal</span>
-                          )}
+                          {(() => {
+                            // Buscar el actor principal en la lista global
+                            const principal = allActors && history.idactor
+                              ? allActors.find(a => a.idactor === history.idactor)
+                              : null;
+                            return principal ? (
+                              <span className="badge bg-primary">
+                                {principal.descripcion || principal.idactor || 'Sin actor principal'}
+                              </span>
+                            ) : (
+                              <span className="text-muted">Sin actor principal</span>
+                            );
+                          })()}
                         </div>
                       </div>
 
                       <div className="mb-3">
                         <h6 className="card-subtitle text-muted mb-2">Autor Principal:</h6>
                         <div>
-                          {history.autores && history.autores[0] ? (
-                            <span className="badge bg-primary">
-                              {history.autores[0].autor.descripcion || 'Sin autor principal'}
-                            </span>
-                          ) : (
-                            <span className="text-muted">Sin autor principal</span>
-                          )}
+                          {(() => {
+                            // Buscar el autor principal en la lista global
+                            const principal = allAuthors && history.idautor
+                              ? allAuthors.find(a => a.idautor === history.idautor)
+                              : null;
+                            return principal ? (
+                              <span className="badge bg-primary">
+                                {principal.descripcion || principal.idautor || 'Sin autor principal'}
+                              </span>
+                            ) : (
+                              <span className="text-muted">Sin autor principal</span>
+                            );
+                          })()}
                         </div>
                       </div>
 
@@ -193,11 +215,13 @@ const HistoryTable = () => {
                         <h6 className="card-subtitle text-muted mb-2">Actores Adicionales:</h6>
                         <div className="d-flex flex-wrap gap-2">
                           {Array.isArray(history.actores) && history.actores.length > 0 ? (
-                            history.actores.map((actorRelation) => (
-                              <span key={actorRelation.idactor} className="badge bg-primary">
-                                {actorRelation.actor?.descripcion || 'Nombre no encontrado'}
-                              </span>
-                            ))
+                            history.actores
+                              .filter(actorRelation => actorRelation.idactor !== history.idactor)
+                              .map((actorRelation) => (
+                                <span key={actorRelation.idactor} className="badge bg-primary">
+                                  {actorRelation.actor?.descripcion || 'Nombre no encontrado'}
+                                </span>
+                              ))
                           ) : (
                             <span className="text-muted">No hay actores asignados</span>
                           )}
@@ -208,11 +232,13 @@ const HistoryTable = () => {
                         <h6 className="card-subtitle text-muted mb-2">Autores:</h6>
                         <div className="d-flex flex-wrap gap-2">
                           {Array.isArray(history.autores) && history.autores.length > 0 ? (
-                            history.autores.map((autorRelation) => (
-                              <span key={autorRelation.idautor} className="badge bg-success">
-                                {autorRelation.autor?.descripcion || 'Nombre no encontrado'}
-                              </span>
-                            ))
+                            history.autores
+                              .filter(autorRelation => autorRelation.idautor !== history.idautor)
+                              .map((autorRelation) => (
+                                <span key={autorRelation.idautor} className="badge bg-success">
+                                  {autorRelation.autor?.descripcion || 'Nombre no encontrado'}
+                                </span>
+                              ))
                           ) : (
                             <span className="text-muted">No hay autores asignados</span>
                           )}

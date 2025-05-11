@@ -117,24 +117,28 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         console.log('IDs de Actores adicionales:', formData.actores_ids);
         console.log('IDs de Autores adicionales:', formData.autores_ids);
 
+        // Filtrar ids para evitar que el principal esté en los adicionales
+        const cleanActoresIds = (formData.actores_ids || []).filter(id => id !== mainActorId && id !== '' && id !== null);
+        const cleanAutoresIds = (formData.autores_ids || []).filter(id => id !== mainAuthorId && id !== '' && id !== null);
+
         const historyData = {
           titulo: formData.titulo,
           descripcion: formData.descripcion,
           idactor: mainActorId,
           idautor: mainAuthorId,
-          actores_ids: formData.actores_ids || [],
-          autores_ids: formData.autores_ids || []
+          actores_ids: cleanActoresIds,
+          autores_ids: cleanAutoresIds
         };
 
-        console.log('Datos que se enviarán al servidor:', historyData);
+      
         const response = await createHistory(historyData);
-        console.log('Respuesta del servidor:', response);
+       
 
         if (!response?.data?.success) {
           throw new Error(response?.data?.message || 'Error al crear la historia');
         }
 
-        console.log('Historia creada con éxito. Datos de respuesta:', response?.data?.data);
+       
 
         setSuccessMessage('Historia creada exitosamente!');
         setFormData({
