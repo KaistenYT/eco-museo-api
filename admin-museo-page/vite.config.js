@@ -9,17 +9,20 @@ export default defineConfig({
       '/actors': {
         target: 'https://historias-api-crud.vercel.app',
         changeOrigin: true,
-        secure: true
+        secure: true,
+        rewrite: (path) => path.replace(/^\/actors/, '')
       },
       '/authors': {
         target: 'https://historias-api-crud.vercel.app',
         changeOrigin: true,
-        secure: true
+        secure: true,
+        rewrite: (path) => path.replace(/^\/authors/, '')
       },
       '/histories': {
         target: 'https://historias-api-crud.vercel.app',
         changeOrigin: true,
-        secure: true
+        secure: true,
+        rewrite: (path) => path.replace(/^\/histories/, '')
       }
     }
   },
