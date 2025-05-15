@@ -1,7 +1,16 @@
 import axios from "axios";
 
+// Configurar Axios con headers y timeout
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.timeout = 10000; // 10 segundos
+
 // Actors API
-export const getActors = () => axios.get('/actors/list');
+export const getActors = () => axios.get('/actors/list', {
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
 export const getActorById = (id) => axios.get(`/actors/${id}`);
 export const createActor = (actor) => axios.post('/actors/add', actor);
 export const updateActor = (id, actor) => axios.put(`/actors/update/${id}`, actor);
