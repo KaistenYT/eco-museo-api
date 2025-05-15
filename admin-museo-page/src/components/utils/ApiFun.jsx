@@ -1,13 +1,11 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_URL_BASE;
-
 // Actors API
-export const getActors = () => axios.get(`${API_URL}/actors/list`);
-export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`);
-export const createActor = (actor) => axios.post(`${API_URL}/actors/add`, actor);
-export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/update/${id}`, actor);
-export const deleteActor = (id) => axios.delete(`${API_URL}/actors/delete/${id}`);
+export const getActors = () => axios.get('/actors/list');
+export const getActorById = (id) => axios.get(`/actors/${id}`);
+export const createActor = (actor) => axios.post('/actors/add', actor);
+export const updateActor = (id, actor) => axios.put(`/actors/update/${id}`, actor);
+export const deleteActor = (id) => axios.delete(`/actors/delete/${id}`);
 
 // Actor Images API
 export const addActorImage = async (idactor, file, filename) => {
