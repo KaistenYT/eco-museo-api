@@ -9,6 +9,35 @@ export const createActor = (actor) => axios.post(`${API_URL}/actors/add`, actor)
 export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/update/${id}`, actor);
 export const deleteActor = (id) => axios.delete(`${API_URL}/actors/delete/${id}`);
 
+// Actor Images API
+export const addActorImage = async (idactor, file, filename) => {
+  const formData = new FormData();
+  formData.append('imagen', file);
+  formData.append('filename', filename);
+
+  try {
+    const response = await axios.post(`${API_URL}/actors/${idactor}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al subir imagen:', error);
+    throw error;
+  }
+};
+
+export const getActorImage = async (idactor) => {
+  try {
+    const response = await axios.get(`${API_URL}/actors/${idactor}/image`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener imagen:', error);
+    throw error;
+  }
+};
+
 // Authors API
 export const getAuthors = () => axios.get(`${API_URL}/authors/list`);
 export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`);
