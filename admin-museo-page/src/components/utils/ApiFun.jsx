@@ -1,50 +1,10 @@
 import axios from "axios";
 
-// Configurar Axios con headers y timeout
-axios.defaults.headers.common = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With'
-};
-
-axios.defaults.timeout = 10000; // 10 segundos
-
-// Configurar interceptores para manejar errores y CORS
-axios.interceptors.request.use(
-  (config) => {
-    // Agregar headers adicionales si es necesario
-    config.headers['X-Requested-With'] = 'XMLHttpRequest';
-    return config;
-  },
-  (error) => {
-    console.error('Error en el interceptor de request:', error);
-    return Promise.reject(error);
-  }
-);
-
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      // El servidor respondió pero con un error
-      console.error('Error del servidor:', error.response.data);
-    } else if (error.request) {
-      // La petición fue hecha pero no recibió respuesta
-      console.error('Error de red:', error.request);
-    } else {
-      // Algo sucedió al configurar la petición
-      console.error('Error de configuración:', error.message);
-    }
-    return Promise.reject(error);
-  }
-);
 
 const API_URL = import.meta.env.VITE_URL_BASE || 'https://historias-api-crud.vercel.app';
 
 // Actors API
-export const getActors = () => axios.get(`${API_URL}/actors`, {
+export const getActors = () => axios.get(`${API_URL}/actors/list`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -60,7 +20,7 @@ export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`, {
   }
 });
 
-export const createActor = (actor) => axios.post(`${API_URL}/actors`, actor, {
+export const createActor = (actor) => axios.post(`${API_URL}/actors/add`, actor, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -68,7 +28,7 @@ export const createActor = (actor) => axios.post(`${API_URL}/actors`, actor, {
   }
 });
 
-export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/${id}`, actor, {
+export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/update/${id}`, actor, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -76,7 +36,7 @@ export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/${id}`, a
   }
 });
 
-export const deleteActor = (id) => axios.delete(`${API_URL}/actors/${id}`, {
+export const deleteActor = (id) => axios.delete(`${API_URL}/actors/delete/${id}`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -85,7 +45,7 @@ export const deleteActor = (id) => axios.delete(`${API_URL}/actors/${id}`, {
 });
 
 // Authors API
-export const getAuthors = () => axios.get(`${API_URL}/authors`, {
+export const getAuthors = () => axios.get(`${API_URL}/authors/list`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -101,7 +61,7 @@ export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`, {
   }
 });
 
-export const createAuthor = (author) => axios.post(`${API_URL}/authors`, author, {
+export const createAuthor = (author) => axios.post(`${API_URL}/authors/add`, author, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -109,7 +69,7 @@ export const createAuthor = (author) => axios.post(`${API_URL}/authors`, author,
   }
 });
 
-export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/${id}`, author, {
+export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/update/${id}`, author, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -117,7 +77,7 @@ export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/${id}`
   }
 });
 
-export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/${id}`, {
+export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/delete/${id}`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -126,7 +86,7 @@ export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/${id}`, {
 });
 
 // Histories API
-export const createHistory = (history) => axios.post(`${API_URL}/histories`, history, {
+export const createHistory = (history) => axios.post(`${API_URL}/histories/add`, history, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -134,7 +94,7 @@ export const createHistory = (history) => axios.post(`${API_URL}/histories`, his
   }
 });
 
-export const updateHistory = (id, history) => axios.put(`${API_URL}/histories/${id}`, history, {
+export const updateHistory = (id, history) => axios.put(`${API_URL}/histories/update/${id}`, history, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -142,7 +102,7 @@ export const updateHistory = (id, history) => axios.put(`${API_URL}/histories/${
   }
 });
 
-export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/${id}`, {
+export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -163,7 +123,7 @@ export const getHistoryById = async (id) => {
 
 export const getHistories = async () => {
   try {
-    const response = await axios.get(`${API_URL}/histories`, {
+    const response = await axios.get(`${API_URL}/histories/list`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
