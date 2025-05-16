@@ -11,31 +11,15 @@ import authorRoutes from './routes/authorRoutes.js';
 import historyRoutes from './routes/historyRoutes.js';
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Permitir localhost y todas las versiones de Vercel
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5174',
-      'http://localhost:5173',
-      'https://historias-api-crud.vercel.app',
-      'https://historias-eight.vercel.app',
-      'https://eco-museo-api.vercel.app'
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept'],
-  exposedHeaders: ['Content-Length'],
-  maxAge: 3600,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5174',
+    'http://localhost:5173',
+    'https://eco-museo-api.vercel.app',
+    'https://historias-api-crud.vercel.app',
+    '*'
+  ]
 };
 
 const app = express();
