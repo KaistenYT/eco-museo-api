@@ -126,6 +126,22 @@ export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/${id}`, {
 });
 
 // Histories API
+export const createHistory = (history) => axios.post(`${API_URL}/histories`, history, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const updateHistory = (id, history) => axios.put(`${API_URL}/histories/${id}`, history, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
 export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`, {
   withCredentials: true,
   headers: {
