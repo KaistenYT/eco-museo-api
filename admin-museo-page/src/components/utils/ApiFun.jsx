@@ -3,47 +3,18 @@ import axios from "axios";
 // Configurar Axios con headers y timeout
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.timeout = 10000; // 10 segundos
-
+const API_URL = import.meta.env.VITE_URL_BASE;
 // Actors API
-export const getActors = () => axios.get('/actors', {
+export const getActors = () => axios.get(`${API_URL}/actors`, {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
-export const getActorById = (id) => axios.get(`/actors/${id}`);
-export const createActor = (actor) => axios.post('/actors', actor);
-export const updateActor = (id, actor) => axios.put(`/actors/${id}`, actor);
-export const deleteActor = (id) => axios.delete(`/actors/${id}`);
-
-// Actor Images API
-export const addActorImage = async (idactor, file, filename) => {
-  const formData = new FormData();
-  formData.append('imagen', file);
-  formData.append('filename', filename);
-
-  try {
-    const response = await axios.post(`${API_URL}/actors/${idactor}/images`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error al subir imagen:', error);
-    throw error;
-  }
-};
-
-export const getActorImage = async (idactor) => {
-  try {
-    const response = await axios.get(`${API_URL}/actors/${idactor}/image`);
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener imagen:', error);
-    throw error;
-  }
-};
+export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`);
+export const createActor = (actor) => axios.post(`${API_URL}/actors`, actor);
+export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/${id}`, actor);
+export const deleteActor = (id) => axios.delete(`${API_URL}/actors/${id}`);
 
 // Authors API
 export const getAuthors = () => axios.get(`${API_URL}/authors/list`);
