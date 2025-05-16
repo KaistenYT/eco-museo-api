@@ -11,10 +11,9 @@ class Actor {
         console.error('Error al obtener todos los actores:', error);
         throw error;
       }
-
       return data;
     } catch (error) {
-      throw error;
+      throw error; // Re-lanza el error para el manejo centralizado
     }
   }
 
@@ -92,6 +91,8 @@ class Actor {
     }
   }
 
+
+  
 }
 
 export default Actor;
