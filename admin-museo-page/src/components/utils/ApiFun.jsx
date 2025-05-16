@@ -142,7 +142,7 @@ export const updateHistory = (id, history) => axios.put(`${API_URL}/histories/${
   }
 });
 
-export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`, {
+export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/${id}`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -162,54 +162,16 @@ export const getHistoryById = async (id) => {
 };
 
 export const getHistories = async () => {
-  const response = await axios.get(`${API_URL}/histories/list`, {
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  });
-  if (!response.data.success) {
-    throw new Error(response.data.message);
+  try {
+    const response = await axios.get(`${API_URL}/histories`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    return response;
+  } catch (error) {
+    throw new Error('Error al obtener historias');
   }
-
-  const histories = response.data.data;
-  const actorResponse = await axios.get(`${API_URL}/actors/list`  , {
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  });
-  const autorResponse = await axios.get(`${API_URL}/authors/list`, {
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  });
-
-  if (!actorResponse.data.success || !autorResponse.data.success) {
-    throw new Error('Error al obtener actores/autores');
-  }
-
-  const actors = actorResponse.data.data || [];
-  const authors = autorResponse.data.data || [];
-
-  const historiesWithRelations = histories.map(history => ({
-    ...history,
-    actores_ids: actors
-      .filter(actor => actor.idhistory === history.idhistory)
-      .map(actor => actor.idactor),
-    autores_ids: authors
-      .filter(author => author.idhistory === history.idhistory)
-      .map(author => author.idautor)
-  }));
-
-  return {
-    data: {
-      success: true,
-      data: historiesWithRelations
-    }
-  };
 };
