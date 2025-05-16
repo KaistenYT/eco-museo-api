@@ -14,16 +14,16 @@ export function BarraNav() {
             <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav">
                     <li className="nav-item">
-                        <a className="nav-link" href="/actors">Actores</a>
+                        <a className="nav-link" href="/actors/list">Actores</a>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link" href="/authors">Autores</a>
+                        <a className="nav-link" href="/authors/list">Autores</a>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link" href="/histories">Historias</a>
+                        <a className="nav-link" href="/histories/list">Historias</a>
                     </li>
                     <li className="nav-item">
-                        <a className="nav-link" href="/participations">Participaciones</a>
+                        <a className="nav-link" href="/participations/list">Participaciones</a>
                     </li>
                 </ul>
             </div>
