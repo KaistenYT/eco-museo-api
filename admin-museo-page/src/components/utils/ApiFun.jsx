@@ -1,87 +1,177 @@
 import axios from "axios";
 
 // Configurar Axios con headers y timeout
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With'
+};
+
 axios.defaults.timeout = 10000; // 10 segundos
-const API_URL = import.meta.env.VITE_URL_BASE;
+
+// Configurar interceptores para manejar errores y CORS
+axios.interceptors.request.use(
+  (config) => {
+    // Agregar headers adicionales si es necesario
+    config.headers['X-Requested-With'] = 'XMLHttpRequest';
+    return config;
+  },
+  (error) => {
+    console.error('Error en el interceptor de request:', error);
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // El servidor respondió pero con un error
+      console.error('Error del servidor:', error.response.data);
+    } else if (error.request) {
+      // La petición fue hecha pero no recibió respuesta
+      console.error('Error de red:', error.request);
+    } else {
+      // Algo sucedió al configurar la petición
+      console.error('Error de configuración:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
+const API_URL = import.meta.env.VITE_URL_BASE || 'https://historias-api-crud.vercel.app';
+
 // Actors API
 export const getActors = () => axios.get(`${API_URL}/actors`, {
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
-export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`);
-export const createActor = (actor) => axios.post(`${API_URL}/actors`, actor);
-export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/${id}`, actor);
-export const deleteActor = (id) => axios.delete(`${API_URL}/actors/${id}`);
+
+export const getActorById = (id) => axios.get(`${API_URL}/actors/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const createActor = (actor) => axios.post(`${API_URL}/actors`, actor, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const updateActor = (id, actor) => axios.put(`${API_URL}/actors/${id}`, actor, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const deleteActor = (id) => axios.delete(`${API_URL}/actors/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
 
 // Authors API
-export const getAuthors = () => axios.get(`${API_URL}/authors/list`);
-export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`);
-export const createAuthor = (authorData) => axios.post(`${API_URL}/authors/add`, {
-  descripcion: authorData.descripcion
+export const getAuthors = () => axios.get(`${API_URL}/authors`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 });
-export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/update/${id}`, author);
-export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/delete/${id}`);
+
+export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const createAuthor = (author) => axios.post(`${API_URL}/authors`, author, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/${id}`, author, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
 
 // Histories API
-export const createHistory = async (historyData) => {
-  const idactor = historyData.idactor === '' ? null : historyData.idactor;
-  const idautor = historyData.idautor === '' ? null : historyData.idautor;
-
-  const dataToSend = {
-    titulo: historyData.titulo,
-    descripcion: historyData.descripcion,
-    idactor,
-    idautor,
-    actores_ids: historyData.actores_ids || [],
-    autores_ids: historyData.autores_ids || []
-  };
-
-  const response = await axios.post(`${API_URL}/histories/add`, dataToSend);
-  if (!response.data.success) {
-    throw new Error(response.data.message);
+export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
-  return response;
-};
-
-export const updateHistory = async (id, historyData) => {
-  const idactor = historyData.idactor === '' ? null : historyData.idactor;
-  const idautor = historyData.idautor === '' ? null : historyData.idautor;
-
-  const dataToSend = {
-    titulo: historyData.titulo,
-    descripcion: historyData.descripcion,
-    idactor,
-    idautor,
-    actores_ids: historyData.actores_ids || [],
-    autores_ids: historyData.autores_ids || []
-  };
-
-  const response = await axios.put(`${API_URL}/histories/update/${id}`, dataToSend);
-  if (!response.data.success) {
-    throw new Error(response.data.message);
-  }
-  return response;
-};
-
-export const deleteHistory = (id) => axios.delete(`${API_URL}/histories/delete/${id}`);
+});
 
 export const getHistoryById = async (id) => {
-  const response = await axios.get(`${API_URL}/histories/${id}`);
+  const response = await axios.get(`${API_URL}/histories/${id}`, {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
   return response;
 };
 
 export const getHistories = async () => {
-  const response = await axios.get(`${API_URL}/histories/list`);
+  const response = await axios.get(`${API_URL}/histories/list`, {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
   if (!response.data.success) {
     throw new Error(response.data.message);
   }
 
   const histories = response.data.data;
-  const actorResponse = await axios.get(`${API_URL}/actors/list`);
-  const autorResponse = await axios.get(`${API_URL}/authors/list`);
+  const actorResponse = await axios.get(`${API_URL}/actors/list`  , {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  const autorResponse = await axios.get(`${API_URL}/authors/list`, {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
 
   if (!actorResponse.data.success || !autorResponse.data.success) {
     throw new Error('Error al obtener actores/autores');
