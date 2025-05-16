@@ -1,5 +1,8 @@
 import Actor from '../model/actor.js';
 
+
+
+
 export class ActorController {
 
   static async getAllActors(req, res) {
@@ -121,4 +124,6 @@ export class ActorController {
       });
     }
   }
+
+ 
 }
