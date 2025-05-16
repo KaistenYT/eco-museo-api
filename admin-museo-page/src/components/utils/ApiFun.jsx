@@ -5,16 +5,16 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.timeout = 10000; // 10 segundos
 
 // Actors API
-export const getActors = () => axios.get('/actors/list', {
+export const getActors = () => axios.get('/actors', {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
 });
 export const getActorById = (id) => axios.get(`/actors/${id}`);
-export const createActor = (actor) => axios.post('/actors/add', actor);
-export const updateActor = (id, actor) => axios.put(`/actors/update/${id}`, actor);
-export const deleteActor = (id) => axios.delete(`/actors/delete/${id}`);
+export const createActor = (actor) => axios.post('/actors', actor);
+export const updateActor = (id, actor) => axios.put(`/actors/${id}`, actor);
+export const deleteActor = (id) => axios.delete(`/actors/${id}`);
 
 // Actor Images API
 export const addActorImage = async (idactor, file, filename) => {
