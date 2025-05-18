@@ -1,7 +1,8 @@
 import axios from "axios";
 
 
-const API_URL = import.meta.env.VITE_URL_BASE || 'https://historias-api-crud.vercel.app';
+const API_URL = import.meta.env.VITE_URL_BASE || 'http://localhost:3000';
+/*const API_URL = 'http://localhost:3000';*/
 
 // Actors API
 export const getActors = () => axios.get(`${API_URL}/actors/list`, {
@@ -44,6 +45,21 @@ export const deleteActor = (id) => axios.delete(`${API_URL}/actors/delete/${id}`
   }
 });
 
+export const uploadActorImage = (id, image) => axios.post(`${API_URL}/actors/upload-image/${id}/image`, image, {
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json' 
+  }
+});
+
+export const deleteActorImage = (id) => axios.delete(`${API_URL}/actors/delete-image/${id}/image`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
 // Authors API
 export const getAuthors = () => axios.get(`${API_URL}/authors/list`, {
   withCredentials: true,
@@ -78,6 +94,21 @@ export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/update
 });
 
 export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/delete/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const uploadAuthorImage = (id, image) => axios.post(`${API_URL}/authors/upload-image/${id}/image`, image, {
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json' 
+  }
+}); 
+
+export const deleteAuthorImage = (id) => axios.delete(`${API_URL}/authors/delete-image/${id}/image`, {
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -135,3 +166,18 @@ export const getHistories = async () => {
     throw new Error('Error al obtener historias');
   }
 };
+
+export const uploadHistoryImage = (id, image) => axios.post(`${API_URL}/histories/upload-image/${id}/image`, image, {
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json' 
+  }
+});
+
+export const deleteHistoryImage = (id) => axios.delete(`${API_URL}/histories/delete-image/${id}/image`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});

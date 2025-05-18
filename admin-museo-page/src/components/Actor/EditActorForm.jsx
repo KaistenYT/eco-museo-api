@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getActorById, updateActor } from '../utils/ApiFun';
+import { getActorById, updateActor, uploadActorImage } from '../utils/ApiFun';
 
 const EditActorForm = () => {
   const { id } = useParams();

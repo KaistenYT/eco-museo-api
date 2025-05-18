@@ -11,9 +11,14 @@ const AuthorTable = () => {
     try {
       setIsLoading(true);
       const response = await getAuthors();
-      
+
       if (response?.data?.success && Array.isArray(response.data.data)) {
-        setAuthors(response.data.data);
+        // Verifica la estructura de la respuesta
+        const authorsWithImages = response.data.data.map(author => ({
+          ...author,
+          imagen: author.imagen || '/placeholder.jpg' // Asigna un valor por defecto si la imagen no existe
+        }));
+        setAuthors(authorsWithImages);
         setError(null);
       } else {
         setError('Formato de datos inesperado');
@@ -71,6 +76,8 @@ const AuthorTable = () => {
         <thead className="table-dark">
           <tr>
             <th scope="col">Descripción</th>
+            <th scope="col">Resenia</th>
+            <th scope="col">Imagen</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
@@ -79,6 +86,14 @@ const AuthorTable = () => {
             authors.map((author) => (
               <tr key={author.idautor}>
                 <td>{author.descripcion || 'N/A'}</td>
+                <td>{author.resenia || 'N/A'}</td>
+                <td>
+                  <img 
+                    src={author.imagen}  // Usa directamente author.imagen
+                    alt={author.descripcion || 'Imagen del autor'} 
+                    style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                  />
+                </td>
                 <td>
                   <Link 
                     to={`/authors/edit/${author.idautor}`} 
@@ -97,7 +112,7 @@ const AuthorTable = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="2" className="text-center">
+              <td colSpan="4" className="text-center">
                 No hay autores disponibles
               </td>
             </tr>

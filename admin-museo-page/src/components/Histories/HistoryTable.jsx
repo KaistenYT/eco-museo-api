@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getHistories, deleteHistory, getActors, getAuthors } from '../utils/ApiFun';
+import './HistoryDetail.css';
 
 const HistoryTable = () => {
   const [histories, setHistories] = useState([]);
@@ -245,7 +246,19 @@ const HistoryTable = () => {
                         </div>
                       </div>
                     </div>
+                     
 
+        <div>
+  {history.imagen && (
+    <div className="history-image-container">
+      <img
+        src={history.imagen}
+        alt={history.titulo}
+        className="history-image"
+      />
+    </div>
+  )}
+</div>
                     <div className="card-footer bg-transparent border-top-0">
                       <div className="btn-group w-100">
                         <Link

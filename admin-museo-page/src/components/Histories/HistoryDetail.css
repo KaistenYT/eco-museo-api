@@ -1,0 +1,14 @@
+/* HistoryDetail.css */
+.history-image-container {
+    max-height: 400px;
+    overflow: hidden; /* Recorta la imagen si excede la altura */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centra verticalmente si es necesario */
+  }
+  
+  .history-image {
+    width: auto;
+    height: 100%; /* Intenta ocupar toda la altura del contenedor */
+    object-fit: cover;
+  }
