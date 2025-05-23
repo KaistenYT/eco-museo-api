@@ -5,7 +5,20 @@ class Actor {
     try {
       const { data, error } = await supabase
         .from('actor')
-        .select('*');
+        .select(`
+          idactor,
+          descripcion,
+          imagen,
+          caracteristicas, // Asumo que 'caracteristicas' es un campo de texto o varchar en 'actor'
+          historia_actor ( // Trae la tabla pivote 'historia_actor'
+            history ( // A través de la tabla pivote, trae los datos de 'history'
+              idhistory,
+              titulo,
+              descripcion,
+              imagen // Puedes especificar las columnas de 'history' que necesites
+            )
+          )
+        `);
 
       if (error) {
         console.error('Error al obtener todos los actores:', error);

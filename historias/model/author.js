@@ -5,7 +5,20 @@ class Author {
     try {
       const { data, error } = await supabase
         .from('autor')
-        .select('*');
+        .select(`
+          idautor,
+          descripcion,
+          imagen,
+          resenia,
+          historia_autor ( // Trae la tabla pivote 'historia_autor'
+            history ( // A través de la tabla pivote, trae los datos de 'history'
+              idhistory,
+              titulo,
+              descripcion,
+              imagen // Puedes especificar las columnas de 'history' que necesites
+            )
+          )
+        `);
 
       if (error) {
         console.error('Error al obtener todos los autores:', error);
