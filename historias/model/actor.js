@@ -9,13 +9,13 @@ class Actor {
           idactor,
           descripcion,
           imagen,
-          caracteristicas, // Asumo que 'caracteristicas' es un campo de texto o varchar en 'actor'
-          historia_actor ( // Trae la tabla pivote 'historia_actor'
-            history ( // A través de la tabla pivote, trae los datos de 'history'
+          caracteristicas,
+          historia_actor (
+            history (
               idhistory,
               titulo,
               descripcion,
-              imagen // Puedes especificar las columnas de 'history' que necesites
+              imagen
             )
           )
         `);
@@ -25,8 +25,16 @@ class Actor {
         throw error;
       }
 
-      return data;
+      // Re-formatear los datos para que el frontend reciba `actor.obras` directamente
+      const formattedData = data.map(actor => ({
+        ...actor,
+        // Mapea el array de `historia_actor` para extraer solo el objeto `history`
+        obras: actor.historia_actor.map(ha => ha.history).filter(Boolean)
+      }));
+
+      return formattedData; // Retorna los datos ya formateados
     } catch (error) {
+      // Re-lanza el error para que el controlador lo capture
       throw error;
     }
   }
@@ -35,7 +43,20 @@ class Actor {
     try {
       const { data, error } = await supabase
         .from('actor')
-        .select('*')
+        .select(`
+          idactor,
+          descripcion,
+          imagen,
+          caracteristicas,
+          historia_actor (
+            history (
+              idhistory,
+              titulo,
+              descripcion,
+              imagen
+            )
+          )
+        `)
         .eq('idactor', id)
         .single();
 
@@ -43,8 +64,17 @@ class Actor {
         console.error('Error al obtener actor por ID:', error);
         throw error;
       }
-      return data;
+
+      // Re-formatear los datos para que el frontend reciba `actor.obras` directamente
+      const formattedData = {
+        ...data,
+        // Mapea el array de `historia_actor` para extraer solo el objeto `history`
+        obras: data.historia_actor.map(ha => ha.history).filter(Boolean)
+      };
+
+      return formattedData; // Retorna los datos ya formateados
     } catch (error) {
+      // Re-lanza el error para que el controlador lo capture
       throw error;
     }
   }
