@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createHistory, getActors, getAuthors, uploadHistoryImage } from '../utils/ApiFun';
+// Asumiendo que `ApiFun.js` maneja la URL base de tu backend Node.js
 
 const AddHistoryForm = ({ onHistoryAdded }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
-    actores_ids: [],
-    autores_ids: [],
-    idactor: '',
-    idautor: '',
+    actores_ids: [], // Solo necesitamos este array para actores
+    autores_ids: [], // Solo necesitamos este array para autores
+    // Eliminamos idactor e idautor de aquí
     selectedActorToAdd: '',
     selectedAuthorToAdd: '',
   });
@@ -27,6 +27,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const [historyIdForImage, setHistoryIdForImage] = useState(null);
   const [imageUploadEnabled, setImageUploadEnabled] = useState(false);
 
+  // Estas funciones de ayuda están bien
   const getActorName = useCallback(
     (id) => actors.find((a) => a.idactor === id)?.descripcion || id,
     [actors]
@@ -43,41 +44,54 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     setError('');
   };
 
+  // handleSelectChange ya no necesita un 'fieldName' especial para idactor/idautor
+  // Solo se usará para 'selectedActorToAdd' y 'selectedAuthorToAdd'
   const handleSelectChange = (e, fieldName) => {
     const value = e.target.value;
-    handleChange({ target: { name: fieldName, value } });
+    setFormData((prev) => ({ ...prev, [fieldName]: value })); // Usa el fieldName directamente
+    setError('');
   };
 
+  // Lógica de añadir actor ya es correcta
   const handleAddActor = useCallback(() => {
     if (!formData.selectedActorToAdd) {
       setError('¡Oye! Selecciona un actor para agregar.');
       return;
     }
-    setFormData((prev) =>
-      prev.actores_ids.includes(formData.selectedActorToAdd)
-        ? { ...prev, selectedActorToAdd: '', error: '¡Ya agregaste ese actor' }
-        : {
-            ...prev,
-            actores_ids: [...prev.actores_ids, formData.selectedActorToAdd],
-            selectedActorToAdd: '',
-          }
-    );
+    // Asegurarse de no añadir duplicados al array final de actores_ids
+    setFormData((prev) => {
+      if (prev.actores_ids.includes(prev.selectedActorToAdd)) {
+        setError('¡Ya agregaste ese actor!');
+        return { ...prev, selectedActorToAdd: '' }; // Limpiar selección pero sin añadir
+      }
+      return {
+        ...prev,
+        actores_ids: [...prev.actores_ids, prev.selectedActorToAdd],
+        selectedActorToAdd: '',
+        error: '', // Limpiar error si se añade correctamente
+      };
+    });
   }, [formData.selectedActorToAdd, formData.actores_ids]);
 
+  // Lógica de añadir autor ya es correcta
   const handleAddAuthor = useCallback(() => {
     if (!formData.selectedAuthorToAdd) {
       setError('¡Ey! Selecciona un autor para agregar.');
       return;
     }
-    setFormData((prev) =>
-      prev.autores_ids.includes(formData.selectedAuthorToAdd)
-        ? { ...prev, selectedAuthorToAdd: '', error: '¡Ese autor ya está en la lista!' }
-        : {
-            ...prev,
-            autores_ids: [...prev.autores_ids, formData.selectedAuthorToAdd],
-            selectedAuthorToAdd: '',
-          }
-    );
+    // Asegurarse de no añadir duplicados al array final de autores_ids
+    setFormData((prev) => {
+      if (prev.autores_ids.includes(prev.selectedAuthorToAdd)) {
+        setError('¡Ese autor ya está en la lista!');
+        return { ...prev, selectedAuthorToAdd: '' }; // Limpiar selección pero sin añadir
+      }
+      return {
+        ...prev,
+        autores_ids: [...prev.autores_ids, prev.selectedAuthorToAdd],
+        selectedAuthorToAdd: '',
+        error: '', // Limpiar error si se añade correctamente
+      };
+    });
   }, [formData.selectedAuthorToAdd, formData.autores_ids]);
 
   const handleImageChange = (e) => {
@@ -97,46 +111,49 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     setError('');
 
     try {
-      let mainActorId = formData.idactor || null;
-      let mainAuthorId = formData.idautor || null;
-      const cleanActoresIds = (formData.actores_ids || []).filter(id => id !== mainActorId && id !== '' && id !== null);
-      const cleanAutoresIds = (formData.autores_ids || []).filter(id => id !== mainAuthorId && id !== '' && id !== null);
-
-      const historyData = {
+      // Elimina idactor y idautor de la construcción de historyData
+      const historyDataToSend = {
         titulo: formData.titulo,
         descripcion: formData.descripcion,
-        idactor: mainActorId,
-        idautor: mainAuthorId,
-        actores_ids: cleanActoresIds,
-        autores_ids: cleanAutoresIds
+        actores_ids: formData.actores_ids, // Enviar el array completo de actores
+        autores_ids: formData.autores_ids, // Enviar el array completo de autores
+        // La imagen no se envía aquí, se sube en un paso separado
       };
 
-      const response = await createHistory(historyData);
+      console.log('Enviando datos de historia al backend:', historyDataToSend);
 
-      if (!response?.data?.success) {
-        throw new Error(response?.data?.message || '¡Ups! Hubo un problema al crear la historia.');
+      const response = await createHistory(historyDataToSend);
+
+      // Tu backend ahora retorna el objeto de historia creada directamente en `data`
+      // y no un `success` boolean a nivel superior si tu modelo lanza el error.
+      // Así que ajustamos la verificación de la respuesta.
+      if (!response || !response.idhistory) { // Verificar si la historia fue creada (tiene ID)
+        // Si tu API aún devuelve { success: false, message: ... } en caso de error,
+        // ajusta a `if (response?.success === false)`
+        throw new Error(response?.message || '¡Ups! Hubo un problema al crear la historia. No se recibió ID de historia.');
       }
 
       setSuccessMessage('¡Listo! Historia creada exitosamente. Ahora puedes subir la imagen.');
-      setHistoryIdForImage(response.data.data.idhistory);
+      setHistoryIdForImage(response.idhistory); // Obtener el ID directamente de la respuesta
       setImageUploadEnabled(true);
+      
+      // Limpiar el formulario excepto los IDs de actores/autores si el usuario quiere seguir añadiendo
       setFormData({
         titulo: '',
         descripcion: '',
-        idactor: '',
-        idautor: '',
-        actores_ids: [],
+        actores_ids: [], // Limpiar los arrays para el siguiente formulario
         autores_ids: [],
         selectedActorToAdd: '',
         selectedAuthorToAdd: '',
+        // idactor e idautor ya no están en el estado
       });
     } catch (error) {
       console.error('Error al crear historia:', error);
-      setError(error.message);
+      setError(error.message || 'Error desconocido al crear la historia.');
     } finally {
       setIsSubmittingHistory(false);
     }
-  }, [formData]);
+  }, [formData]); // Dependencias: solo formData para el envío.
 
   const handleUploadImage = useCallback(async () => {
     if (!imageFile || !historyIdForImage) {
@@ -153,12 +170,19 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     try {
       const imageResponse = await uploadHistoryImage(historyIdForImage, imageFormData);
       console.log('Respuesta de subida de imagen:', imageResponse);
-      if (imageResponse.status !== 200 && imageResponse.status !== 201) { // Verifica el código de estado
-        console.error("Image upload failed:", imageResponse?.data?.message || imageResponse.statusText);
-        setUploadError(imageResponse?.data?.message || imageResponse.statusText || '¡Uf! Falló la subida de la imagen.');
+
+      // Supabase storage normalmente devuelve un objeto con data y error
+      // o un error directo si la función fetch/axios lo lanza.
+      // Ajusta según cómo `uploadHistoryImage` en `ApiFun.js` maneja la respuesta
+      // de Supabase storage.
+      // Si devuelve un objeto con `data.path` en éxito, busca eso.
+      if (!imageResponse || imageResponse.error) {
+         console.error("Image upload failed:", imageResponse?.error?.message || 'Error desconocido al subir imagen.');
+         setUploadError(imageResponse?.error?.message || '¡Uf! Falló la subida de la imagen.');
       } else {
         setUploadSuccess(true);
-        setImageFile(null);
+        setImageFile(null); // Limpiar el archivo seleccionado
+        setUploadError(null); // Limpiar cualquier error de subida anterior
         await new Promise(resolve => setTimeout(resolve, 1500));
         if (onHistoryAdded) onHistoryAdded();
         navigate('/histories');
@@ -209,6 +233,21 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     );
   }
 
+  // Helper para eliminar actores/autores de la lista de agregados
+  const handleRemoveActor = useCallback((idToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      actores_ids: prev.actores_ids.filter(id => id !== idToRemove)
+    }));
+  }, []);
+
+  const handleRemoveAuthor = useCallback((idToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      autores_ids: prev.autores_ids.filter(id => id !== idToRemove)
+    }));
+  }, []);
+
   return (
     <div className="container mt-4">
       <div className="row justify-content-center">
@@ -256,7 +295,9 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                     />
                   </div>
 
-                  <div className="mb-3">
+                  {/* ELIMINADAS LAS SELECCIONES DE ACTOR PRINCIPAL Y AUTOR PRINCIPAL */}
+                  {/* Estas ya no son necesarias si la tabla history no las tiene */}
+                  {/* <div className="mb-3">
                     <label htmlFor="idactor" className="form-label">Actor Principal</label>
                     <select
                       className="form-select"
@@ -272,7 +313,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                         </option>
                       ))}
                     </select>
-                  </div>
+                  </div> */}
 
                   <div className="mb-3">
                     <label htmlFor="descripcion" className="form-label">Descripción</label>
@@ -288,7 +329,8 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                     ></textarea>
                   </div>
 
-                  <div className="mb-3">
+                  {/* ELIMINADAS LAS SELECCIONES DE ACTOR PRINCIPAL Y AUTOR PRINCIPAL */}
+                  {/* <div className="mb-3">
                     <label htmlFor="idautor" className="form-label">Autor Principal</label>
                     <select
                       className="form-select"
@@ -304,10 +346,10 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                         </option>
                       ))}
                     </select>
-                  </div>
+                  </div> */}
 
                   <div className="mb-3">
-                    <h5>Actores y Autores Adicionales</h5>
+                    <h5>Actores y Autores Participantes</h5>
                     <div className="row">
                       <div className="col-md-6 mb-2">
                         <label className="form-label">Actores</label>
@@ -318,7 +360,8 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedActorToAdd')}
                           >
                             <option value="">Seleccione un actor</option>
-                            {actors.map((actor) => (
+                            {/* Filtrar actores ya seleccionados para no duplicar en el dropdown */}
+                            {actors.filter(actor => !formData.actores_ids.includes(actor.idactor)).map((actor) => (
                               <option key={actor.idactor} value={actor.idactor}>
                                 {actor.descripcion}
                               </option>
@@ -336,9 +379,18 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                         {formData.actores_ids.length > 0 && (
                           <div className="mt-2">
                             <span className="font-weight-bold">Actores agregados:</span>
-                            <div>
+                            <div className="d-flex flex-wrap"> {/* Flexbox para mejor visualización de badges */}
                               {formData.actores_ids.map((actorId) => (
-                                <span key={actorId} className="badge bg-primary me-1">{getActorName(actorId)}</span>
+                                <span key={actorId} className="badge bg-primary me-1 mb-1 d-flex align-items-center">
+                                  {getActorName(actorId)}
+                                  <button
+                                    type="button"
+                                    className="btn-close btn-close-white ms-1"
+                                    aria-label="Remover"
+                                    onClick={() => handleRemoveActor(actorId)}
+                                    style={{ fontSize: '0.6rem' }} // Estilo para hacer el botón de cierre más pequeño
+                                  ></button>
+                                </span>
                               ))}
                             </div>
                           </div>
@@ -353,7 +405,8 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedAuthorToAdd')}
                           >
                             <option value="">Seleccione un autor</option>
-                            {authors.map((author) => (
+                            {/* Filtrar autores ya seleccionados */}
+                            {authors.filter(author => !formData.autores_ids.includes(author.idautor)).map((author) => (
                               <option key={author.idautor} value={author.idautor}>
                                 {author.descripcion}
                               </option>
@@ -371,9 +424,18 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                         {formData.autores_ids.length > 0 && (
                           <div className="mt-2">
                             <span className="font-weight-bold">Autores agregados:</span>
-                            <div>
+                            <div className="d-flex flex-wrap"> {/* Flexbox para mejor visualización de badges */}
                               {formData.autores_ids.map((authorId) => (
-                                <span key={authorId} className="badge bg-info text-dark me-1">{getAuthorName(authorId)}</span>
+                                <span key={authorId} className="badge bg-info text-dark me-1 mb-1 d-flex align-items-center">
+                                  {getAuthorName(authorId)}
+                                  <button
+                                    type="button"
+                                    className="btn-close btn-close-white ms-1"
+                                    aria-label="Remover"
+                                    onClick={() => handleRemoveAuthor(authorId)}
+                                    style={{ fontSize: '0.6rem' }}
+                                  ></button>
+                                </span>
                               ))}
                             </div>
                           </div>
@@ -448,6 +510,9 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                         setImageUploadEnabled(false);
                         setHistoryIdForImage(null);
                         setSuccessMessage('');
+                        setUploadSuccess(false); // Resetear también el éxito de subida
+                        setUploadError(null); // Resetear el error de subida
+                        setImageFile(null); // Limpiar el archivo seleccionado
                       }}
                     >
                       Cancelar Subida
