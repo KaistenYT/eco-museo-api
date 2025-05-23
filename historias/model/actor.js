@@ -51,6 +51,7 @@ class Actor {
           historia_actor (
             history (
               idhistory,
+              idactor,
               titulo,
               descripcion,
               imagen
