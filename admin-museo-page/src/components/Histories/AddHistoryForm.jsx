@@ -4,6 +4,8 @@ import { createHistory, getActors, getAuthors, uploadHistoryImage } from '../uti
 
 const AddHistoryForm = ({ onHistoryAdded }) => {
   const navigate = useNavigate();
+
+  // State management for form data, image, loading, and errors
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -24,97 +26,115 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [historyIdForImage, setHistoryIdForImage] = useState(null);
   const [imageUploadEnabled, setImageUploadEnabled] = useState(false);
+
+  // useRef to hold the latest formData without triggering re-renders
   const formDataRef = useRef(formData);
 
-  // Helper functions
+  // Keep formDataRef always in sync with formData state
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
+
+  // Helper functions for getting names from IDs
   const getActorName = useCallback(
-    (id) => actors.find((a) => a.idactor === id)?.descripcion || id,
+    (id) => actors.find((a) => a.idactor === id)?.descripcion || 'Desconocido',
     [actors]
   );
 
   const getAuthorName = useCallback(
-    (id) => authors.find((a) => a.idautor === id)?.descripcion || id,
+    (id) => authors.find((a) => a.idautor === id)?.descripcion || 'Desconocido',
     [authors]
   );
 
-  // Event handlers
+  // Generic handler for text input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError('');
+    setError(''); // Clear error on change
   };
 
+  // Handler for select input changes (for actors/authors to add)
   const handleSelectChange = (e, fieldName) => {
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
-    setError('');
+    setError(''); // Clear error on change
   };
 
+  // Handler for image file selection
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+    setUploadError(null); // Clear upload error on new file selection
+    setUploadSuccess(false); // Clear upload success on new file selection
+  };
+
+  // Handler for adding an actor to the list
   const handleAddActor = useCallback(() => {
     if (!formData.selectedActorToAdd) {
       setError('¡Oye! Selecciona un actor para agregar.');
       return;
     }
     setFormData((prev) => {
+      // Prevent adding duplicate actors
       if (prev.actores_ids.includes(prev.selectedActorToAdd)) {
         setError('¡Ya agregaste ese actor!');
         return { ...prev, selectedActorToAdd: '' };
       }
+      // Add the actor and clear selection
       return {
         ...prev,
         actores_ids: [...prev.actores_ids, prev.selectedActorToAdd],
         selectedActorToAdd: '',
-        error: '',
+        error: '', // Clear any previous error
       };
     });
-  }, [formData.selectedActorToAdd]);
+  }, [formData.selectedActorToAdd]); // Dependency on selectedActorToAdd
 
+  // Handler for adding an author to the list
   const handleAddAuthor = useCallback(() => {
     if (!formData.selectedAuthorToAdd) {
       setError('¡Ey! Selecciona un autor para agregar.');
       return;
     }
     setFormData((prev) => {
+      // Prevent adding duplicate authors
       if (prev.autores_ids.includes(prev.selectedAuthorToAdd)) {
         setError('¡Ese autor ya está en la lista!');
         return { ...prev, selectedAuthorToAdd: '' };
       }
+      // Add the author and clear selection
       return {
         ...prev,
         autores_ids: [...prev.autores_ids, prev.selectedAuthorToAdd],
         selectedAuthorToAdd: '',
-        error: '',
+        error: '', // Clear any previous error
       };
     });
-  }, [formData.selectedAuthorToAdd]);
+  }, [formData.selectedAuthorToAdd]); // Dependency on selectedAuthorToAdd
 
+  // Handler for removing an actor from the list
   const handleRemoveActor = useCallback((idToRemove) => {
     setFormData(prev => ({
       ...prev,
       actores_ids: prev.actores_ids.filter(id => id !== idToRemove)
     }));
-  }, []);
+  }, []); // No dependencies as it operates on the previous state
 
+  // Handler for removing an author from the list
   const handleRemoveAuthor = useCallback((idToRemove) => {
     setFormData(prev => ({
       ...prev,
       autores_ids: prev.autores_ids.filter(id => id !== idToRemove)
     }));
-  }, []);
+  }, []); // No dependencies as it operates on the previous state
 
-  // Update formData ref
-  useEffect(() => {
-    formDataRef.current = formData;
-  }, [formData]);
-
-  // Form submission
+  // Handles the creation of the history entry
   const handleCreateHistory = useCallback(async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
     setIsSubmittingHistory(true);
-    setError('');
+    setError(''); // Clear previous errors
 
     try {
-      const currentFormData = formDataRef.current;
+      const currentFormData = formDataRef.current; // Use ref for the latest data
       const historyDataToSend = {
         titulo: currentFormData.titulo,
         descripcion: currentFormData.descripcion,
@@ -124,104 +144,97 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
 
       const response = await createHistory(historyDataToSend);
 
-      if (!response || !response.idhistory) {
-        throw new Error(response?.message || '¡Ups! Hubo un problema al crear la historia.');
+      // Check for API success and a valid history ID
+      if (!response?.data?.success || !response.data.data?.idhistory) {
+        throw new Error(response?.data?.message || 'Error al crear la historia.');
       }
 
-      setSuccessMessage('¡Listo! Historia creada exitosamente. Ahora puedes subir la imagen.');
-      setHistoryIdForImage(response.idhistory);
-      setImageUploadEnabled(true);
-      
-      setFormData({
-        titulo: '',
-        descripcion: '',
-        actores_ids: [],
-        autores_ids: [],
-        selectedActorToAdd: '',
-        selectedAuthorToAdd: '',
-      });
+      setSuccessMessage('¡Historia creada exitosamente! Ahora puedes subir la imagen.');
+      setHistoryIdForImage(response.data.data.idhistory);
+      setImageUploadEnabled(true); // Enable image upload section
+
     } catch (error) {
-      console.error('Error al crear historia:', error);
-      setError(error.message || 'Error desconocido al crear la historia.');
+      console.error('Error creating history:', error);
+      setError(error.message || 'Error al crear la historia.');
+      setImageUploadEnabled(false); // Keep image upload disabled on error
     } finally {
-      setIsSubmittingHistory(false);
+      setIsSubmittingHistory(false); // Always reset submission state
     }
-  }, []);
+  }, []); // No external dependencies, relies on formDataRef.current
 
-  // Image handling
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-      setUploadError(null);
-    } else {
-      setImageFile(null);
-      setUploadError('¡Cuidado! Solo se aceptan archivos de imagen.');
-    }
-  };
-
+  // Handles the upload of the history image
   const handleUploadImage = useCallback(async () => {
-    if (!imageFile || !historyIdForImage) {
-      setUploadError('¡Oye! Selecciona una imagen y asegúrate de que la historia se haya creado primero.');
+    if (!imageFile) {
+      setUploadError('¡Por favor selecciona una imagen!');
+      return;
+    }
+
+    if (!historyIdForImage) {
+      setUploadError('No se encontró el ID de la historia. Por favor crea la historia primero.');
       return;
     }
 
     setIsUploadingImage(true);
-    setUploadError(null);
+    setUploadError(null); // Clear previous upload errors
 
-    const imageFormData = new FormData();
-    imageFormData.append('file', imageFile);
+    const formData = new FormData();
+    formData.append('image', imageFile); // Ensure the field name matches your API
 
     try {
-      const imageResponse = await uploadHistoryImage(historyIdForImage, imageFormData);
+      const response = await uploadHistoryImage(historyIdForImage, formData);
 
-      if (!imageResponse || imageResponse.error) {
-        throw new Error(imageResponse?.error?.message || '¡Uf! Falló la subida de la imagen.');
+      if (!response?.data?.success) {
+        throw new Error(response?.data?.message || 'Error al subir la imagen.');
       }
 
       setUploadSuccess(true);
-      setImageFile(null);
-      setUploadError(null);
+      setImageFile(null); // Clear selected image
       
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      if (onHistoryAdded) onHistoryAdded();
-      navigate('/histories');
-    } catch (imageUploadError) {
-      console.error('Error al subir la imagen:', imageUploadError);
-      setUploadError('¡Caramba! Error al subir la imagen.');
-    } finally {
-      setIsUploadingImage(false);
-    }
-  }, [imageFile, historyIdForImage, navigate, onHistoryAdded]);
+      // Navigate after a short delay to show success message
+      setTimeout(() => {
+        if (onHistoryAdded) onHistoryAdded(); // Trigger parent's callback if exists
+        navigate('/histories'); // Redirect to histories list
+      }, 1500);
 
-  // Initial data loading
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setUploadError(error.message || 'Error al subir la imagen.');
+    } finally {
+      setIsUploadingImage(false); // Always reset upload state
+    }
+  }, [imageFile, historyIdForImage, navigate, onHistoryAdded]); // Dependencies for useCallback
+
+  // Initial data loading effect
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const [actorsRes, authorsRes] = await Promise.all([getActors(), getAuthors()]);
 
+        // Error handling for actors
         if (!actorsRes?.data?.success) {
-          throw new Error(actorsRes?.data?.message || 'Error al cargar actores');
+          throw new Error(actorsRes?.data?.message || 'Error al cargar actores.');
         }
         setActors(actorsRes.data.data);
 
+        // Error handling for authors
         if (!authorsRes?.data?.success) {
-          throw new Error(authorsRes?.data?.message || 'Error al cargar autores');
+          throw new Error(authorsRes?.data?.message || 'Error al cargar autores.');
         }
         setAuthors(authorsRes.data.data);
 
       } catch (error) {
-        console.error('Error al cargar datos:', error);
-        setError('Error al cargar los datos iniciales');
+        console.error('Error loading initial data:', error);
+        setError('Error al cargar los datos iniciales.');
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Always set loading to false
       }
     };
 
     fetchData();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
+  // Display loading spinner while fetching initial data
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
@@ -236,6 +249,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     <div className="container mt-4">
       <div className="row justify-content-center">
         <div className="col-md-8">
+          {/* Alert Messages */}
           {error && (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
               <strong>¡Error!</strong> {error}
@@ -260,10 +274,15 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
               <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setUploadSuccess(false)}></button>
             </div>
           )}
+
+          {/* Main Card for Form */}
           <div className="card shadow">
             <div className="card-body">
               <h2 className="card-title mb-4">Crear Nueva Historia</h2>
+
+              {/* Conditional rendering based on imageUploadEnabled state */}
               {!imageUploadEnabled ? (
+                // History Creation Form
                 <form onSubmit={handleCreateHistory} noValidate>
                   <div className="mb-3">
                     <label htmlFor="titulo" className="form-label">Título</label>
@@ -296,6 +315,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                   <div className="mb-3">
                     <h5>Actores y Autores Participantes</h5>
                     <div className="row">
+                      {/* Actors Section */}
                       <div className="col-md-6 mb-2">
                         <label className="form-label">Actores</label>
                         <div className="input-group">
@@ -305,6 +325,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedActorToAdd')}
                           >
                             <option value="">Seleccione un actor</option>
+                            {/* Filter out already added actors */}
                             {actors.filter(actor => !formData.actores_ids.includes(actor.idactor)).map((actor) => (
                               <option key={actor.idactor} value={actor.idactor}>
                                 {actor.descripcion}
@@ -340,6 +361,8 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                           </div>
                         )}
                       </div>
+
+                      {/* Authors Section */}
                       <div className="col-md-6 mb-2">
                         <label className="form-label">Autores</label>
                         <div className="input-group">
@@ -349,6 +372,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedAuthorToAdd')}
                           >
                             <option value="">Seleccione un autor</option>
+                            {/* Filter out already added authors */}
                             {authors.filter(author => !formData.autores_ids.includes(author.idautor)).map((author) => (
                               <option key={author.idautor} value={author.idautor}>
                                 {author.descripcion}
@@ -387,6 +411,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                     </div>
                   </div>
 
+                  {/* Form Submission Buttons for History Creation */}
                   <div className="mt-4">
                     <button
                       type="submit"
@@ -408,6 +433,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                   </div>
                 </form>
               ) : (
+                // Image Upload Section
                 <div>
                   <h3 className="mb-3">Subir Imagen para la Historia</h3>
                   <div className="mb-3">
@@ -430,12 +456,13 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                     )}
                     <div className="form-text">Por favor, sube una imagen para la historia.</div>
                   </div>
+                  {/* Image Upload Buttons */}
                   <div className="mt-4">
                     <button
                       type="button"
                       className={`btn btn-success ${isUploadingImage ? 'disabled' : ''}`}
                       onClick={handleUploadImage}
-                      disabled={isUploadingImage || !imageFile}
+                      disabled={isUploadingImage || !imageFile || !historyIdForImage}
                     >
                       {isUploadingImage ? (
                         <>
@@ -450,6 +477,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                       type="button"
                       className="btn btn-secondary ms-2"
                       onClick={() => {
+                        // Reset all states related to image upload and go back to history creation
                         setImageUploadEnabled(false);
                         setHistoryIdForImage(null);
                         setSuccessMessage('');

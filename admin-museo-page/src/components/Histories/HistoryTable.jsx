@@ -175,45 +175,7 @@ const HistoryTable = () => {
                       <p className="card-text mb-3">{history.descripcion || 'Sin descripción'}</p>
 
                       <div className="mb-3">
-                        <h6 className="card-subtitle text-muted mb-2">Actor Principal:</h6>
-                        <div>
-                          {(() => {
-                            // Buscar el actor principal en la lista global
-                            const principal = allActors && history.idactor
-                              ? allActors.find(a => a.idactor === history.idactor)
-                              : null;
-                            return principal ? (
-                              <span className="badge bg-primary">
-                                {principal.descripcion || principal.idactor || 'Sin actor principal'}
-                              </span>
-                            ) : (
-                              <span className="text-muted">Sin actor principal</span>
-                            );
-                          })()}
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <h6 className="card-subtitle text-muted mb-2">Autor Principal:</h6>
-                        <div>
-                          {(() => {
-                            // Buscar el autor principal en la lista global
-                            const principal = allAuthors && history.idautor
-                              ? allAuthors.find(a => a.idautor === history.idautor)
-                              : null;
-                            return principal ? (
-                              <span className="badge bg-primary">
-                                {principal.descripcion || principal.idautor || 'Sin autor principal'}
-                              </span>
-                            ) : (
-                              <span className="text-muted">Sin autor principal</span>
-                            );
-                          })()}
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <h6 className="card-subtitle text-muted mb-2">Actores Adicionales:</h6>
+                        <h6 className="card-subtitle text-muted mb-2">Actores:</h6>
                         <div className="d-flex flex-wrap gap-2">
                           {Array.isArray(history.actores) && history.actores.length > 0 ? (
                             history.actores
