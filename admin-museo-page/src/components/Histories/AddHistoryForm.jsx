@@ -71,7 +71,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         error: '', // Limpiar error si se añade correctamente
       };
     });
-  }, [formData.selectedActorToAdd, formData.actores_ids]);
+  }, []);
 
   // Lógica de añadir autor ya es correcta
   const handleAddAuthor = useCallback(() => {
@@ -92,7 +92,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         error: '', // Limpiar error si se añade correctamente
       };
     });
-  }, [formData.selectedAuthorToAdd, formData.autores_ids]);
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
