@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+// Asegúrate de que estas funciones de la API están correctamente definidas
+// para interactuar con tu backend.
 import { createHistory, getActors, getAuthors, uploadHistoryImage } from '../utils/ApiFun';
 
 const AddHistoryForm = ({ onHistoryAdded }) => {
@@ -20,14 +22,14 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const [actors, setActors] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [uploadError, setUploadError] = useState(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [historyIdForImage, setHistoryIdForImage] = useState(null);
-  const [imageUploadEnabled, setImageUploadEnabled] = useState(false);
+  const [error, setError] = useState(''); // General error for history creation
+  const [successMessage, setSuccessMessage] = useState(''); // General success for history creation
+  const [uploadError, setUploadError] = useState(null); // Specific error for image upload
+  const [uploadSuccess, setUploadSuccess] = useState(false); // Specific success for image upload
+  const [historyIdForImage, setHistoryIdForImage] = useState(null); // ID of the created history
+  const [imageUploadEnabled, setImageUploadEnabled] = useState(false); // Controls UI for image upload section
 
-  // useRef to hold the latest formData without triggering re-renders
+  // useRef to hold the latest formData without triggering re-renders in handleCreateHistory
   const formDataRef = useRef(formData);
 
   // Keep formDataRef always in sync with formData state
@@ -50,14 +52,14 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError(''); // Clear error on change
+    setError(''); // Clear general error on change
   };
 
   // Handler for select input changes (for actors/authors to add)
   const handleSelectChange = (e, fieldName) => {
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
-    setError(''); // Clear error on change
+    setError(''); // Clear general error on change
   };
 
   // Handler for image file selection
@@ -84,7 +86,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         ...prev,
         actores_ids: [...prev.actores_ids, prev.selectedActorToAdd],
         selectedActorToAdd: '',
-        error: '', // Clear any previous error
+        error: '', // Clear any previous general error
       };
     });
   }, [formData.selectedActorToAdd]); // Dependency on selectedActorToAdd
@@ -106,7 +108,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         ...prev,
         autores_ids: [...prev.autores_ids, prev.selectedAuthorToAdd],
         selectedAuthorToAdd: '',
-        error: '', // Clear any previous error
+        error: '', // Clear any previous general error
       };
     });
   }, [formData.selectedAuthorToAdd]); // Dependency on selectedAuthorToAdd
@@ -131,7 +133,8 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const handleCreateHistory = useCallback(async (e) => {
     e.preventDefault(); // Prevent default form submission
     setIsSubmittingHistory(true);
-    setError(''); // Clear previous errors
+    setError(''); // Clear previous general errors
+    setSuccessMessage(''); // Clear previous success messages
 
     try {
       const currentFormData = formDataRef.current; // Use ref for the latest data
@@ -176,9 +179,11 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
 
     setIsUploadingImage(true);
     setUploadError(null); // Clear previous upload errors
+    setUploadSuccess(false); // Clear previous upload success
 
     const formData = new FormData();
-    formData.append('image', imageFile); // Ensure the field name matches your API
+    // CLAVE: Asegúrate de que el nombre del campo 'image' coincida con tu backend Multer
+    formData.append('image', imageFile);
 
     try {
       const response = await uploadHistoryImage(historyIdForImage, formData);
@@ -188,13 +193,12 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
       }
 
       setUploadSuccess(true);
-      setImageFile(null); // Clear selected image
-      
-      // Navigate after a short delay to show success message
-      setTimeout(() => {
-        if (onHistoryAdded) onHistoryAdded(); // Trigger parent's callback if exists
-        navigate('/histories'); // Redirect to histories list
-      }, 1500);
+      setImageFile(null); // Clear selected image after successful upload
+
+      // Navegar inmediatamente después de la subida exitosa.
+      // Ya no usamos setTimeout para una experiencia de usuario más fluida.
+      if (onHistoryAdded) onHistoryAdded(); // Trigger parent's callback if exists
+      navigate('/histories'); // Redirect to histories list
 
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -204,7 +208,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     }
   }, [imageFile, historyIdForImage, navigate, onHistoryAdded]); // Dependencies for useCallback
 
-  // Initial data loading effect
+  // Initial data loading effect for actors and authors
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -270,7 +274,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
           )}
           {uploadSuccess && (
             <div className="alert alert-success alert-dismissible fade show" role="alert">
-              <strong>¡Éxito!</strong> Imagen subida con éxito.
+              <strong>¡Éxito!</strong> Imagen subida con éxito. Redirigiendo...
               <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setUploadSuccess(false)}></button>
             </div>
           )}
@@ -442,7 +446,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                       type="file"
                       className="form-control"
                       id="image"
-                      name="image"
+                      name="image" // Name of the input field
                       accept="image/*"
                       onChange={handleImageChange}
                     />
