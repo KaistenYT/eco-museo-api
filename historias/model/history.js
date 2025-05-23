@@ -216,8 +216,8 @@ export default class History {
       const actores_ids = historyData.actores_ids || [];
       if (Array.isArray(actores_ids) && actores_ids.length > 0) {
         const actorInserts = actores_ids.map(actorId => ({
-          id_historia: newHistory.idhistory, // Usa el ID de la historia recién creada
-          id_actor: actorId // Asegúrate que el campo en tu tabla pivote se llame id_actor
+          idhistory: newHistory.idhistory, // Usa el ID de la historia recién creada
+          idactor: actorId // Asegúrate que el campo en tu tabla pivote se llame id_actor
         }));
 
         console.log('Datos para insertar en historia_actor:', JSON.stringify(actorInserts, null, 2));
@@ -241,8 +241,8 @@ export default class History {
       const autores_ids = historyData.autores_ids || [];
       if (Array.isArray(autores_ids) && autores_ids.length > 0) {
         const autorInserts = autores_ids.map(autorId => ({
-          id_historia: newHistory.idhistory, // Usa el ID de la historia recién creada
-          id_autor: autorId // Asegúrate que el campo en tu tabla pivote se llame id_autor
+          idhistory: newHistory.idhistory, // Usa el ID de la historia recién creada
+          idautor: autorId // Asegúrate que el campo en tu tabla pivote se llame id_autor
         }));
 
         console.log('Datos para insertar en historia_autor:', JSON.stringify(autorInserts, null, 2));

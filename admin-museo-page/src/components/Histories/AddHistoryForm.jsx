@@ -1,15 +1,14 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'; // Import useRef
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createHistory, getActors, getAuthors, uploadHistoryImage } from '../utils/ApiFun';
-// Asumiendo que `ApiFun.js` maneja la URL base de tu backend Node.js
 
 const AddHistoryForm = ({ onHistoryAdded }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
-    actores_ids: [], // Solo necesitamos este array para actores
-    autores_ids: [], // Solo necesitamos este array para autores
+    actores_ids: [],
+    autores_ids: [],
     selectedActorToAdd: '',
     selectedAuthorToAdd: '',
   });
@@ -25,8 +24,9 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [historyIdForImage, setHistoryIdForImage] = useState(null);
   const [imageUploadEnabled, setImageUploadEnabled] = useState(false);
+  const formDataRef = useRef(formData);
 
-  // Estas funciones de ayuda están bien
+  // Helper functions
   const getActorName = useCallback(
     (id) => actors.find((a) => a.idactor === id)?.descripcion || id,
     [actors]
@@ -37,6 +37,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     [authors]
   );
 
+  // Event handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -66,7 +67,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         error: '',
       };
     });
-  }, []);
+  }, [formData.selectedActorToAdd]);
 
   const handleAddAuthor = useCallback(() => {
     if (!formData.selectedAuthorToAdd) {
@@ -85,26 +86,35 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         error: '',
       };
     });
+  }, [formData.selectedAuthorToAdd]);
+
+  const handleRemoveActor = useCallback((idToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      actores_ids: prev.actores_ids.filter(id => id !== idToRemove)
+    }));
   }, []);
 
-  // Create a ref for formData
-  const formDataRef = useRef(formData);
+  const handleRemoveAuthor = useCallback((idToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      autores_ids: prev.autores_ids.filter(id => id !== idToRemove)
+    }));
+  }, []);
 
-  // Update the ref whenever formData changes
+  // Update formData ref
   useEffect(() => {
     formDataRef.current = formData;
   }, [formData]);
-  
-  // handleCreateHistory - Now correctly using the ref and an empty dependency array
+
+  // Form submission
   const handleCreateHistory = useCallback(async (e) => {
     e.preventDefault();
     setIsSubmittingHistory(true);
     setError('');
 
     try {
-      // Access the current formData from the ref
       const currentFormData = formDataRef.current;
-
       const historyDataToSend = {
         titulo: currentFormData.titulo,
         descripcion: currentFormData.descripcion,
@@ -112,12 +122,10 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         autores_ids: currentFormData.autores_ids,
       };
 
-      console.log('Enviando datos de historia al backend:', historyDataToSend);
-
       const response = await createHistory(historyDataToSend);
 
       if (!response || !response.idhistory) {
-        throw new Error(response?.message || '¡Ups! Hubo un problema al crear la historia. No se recibió ID de historia.');
+        throw new Error(response?.message || '¡Ups! Hubo un problema al crear la historia.');
       }
 
       setSuccessMessage('¡Listo! Historia creada exitosamente. Ahora puedes subir la imagen.');
@@ -138,8 +146,9 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
     } finally {
       setIsSubmittingHistory(false);
     }
-  }, []); // Correct: Empty dependency array as it uses the ref to get latest state.
+  }, []);
 
+  // Image handling
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
@@ -165,28 +174,27 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
 
     try {
       const imageResponse = await uploadHistoryImage(historyIdForImage, imageFormData);
-      console.log('Respuesta de subida de imagen:', imageResponse);
 
       if (!imageResponse || imageResponse.error) {
-          console.error("Image upload failed:", imageResponse?.error?.message || 'Error desconocido al subir imagen.');
-          setUploadError(imageResponse?.error?.message || '¡Uf! Falló la subida de la imagen.');
-      } else {
-        setUploadSuccess(true);
-        setImageFile(null);
-        setUploadError(null);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        if (onHistoryAdded) onHistoryAdded();
-        navigate('/histories');
+        throw new Error(imageResponse?.error?.message || '¡Uf! Falló la subida de la imagen.');
       }
+
+      setUploadSuccess(true);
+      setImageFile(null);
+      setUploadError(null);
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (onHistoryAdded) onHistoryAdded();
+      navigate('/histories');
     } catch (imageUploadError) {
       console.error('Error al subir la imagen:', imageUploadError);
       setUploadError('¡Caramba! Error al subir la imagen.');
     } finally {
       setIsUploadingImage(false);
     }
-
   }, [imageFile, historyIdForImage, navigate, onHistoryAdded]);
 
+  // Initial data loading
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -194,18 +202,18 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
         const [actorsRes, authorsRes] = await Promise.all([getActors(), getAuthors()]);
 
         if (!actorsRes?.data?.success) {
-          throw new Error(actorsRes?.data?.message || '¡Ay, mi madre! No se pudieron cargar los actores.');
+          throw new Error(actorsRes?.data?.message || 'Error al cargar actores');
         }
         setActors(actorsRes.data.data);
 
         if (!authorsRes?.data?.success) {
-          throw new Error(authorsRes?.data?.message || '¡Qué peo! Falló la carga de los autores.');
+          throw new Error(authorsRes?.data?.message || 'Error al cargar autores');
         }
         setAuthors(authorsRes.data.data);
 
       } catch (error) {
         console.error('Error al cargar datos:', error);
-        setError('¡Qué macana! Error al cargar los datos.');
+        setError('Error al cargar los datos iniciales');
       } finally {
         setIsLoading(false);
       }
@@ -223,20 +231,6 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
       </div>
     );
   }
-
-  const handleRemoveActor = useCallback((idToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      actores_ids: prev.actores_ids.filter(id => id !== idToRemove)
-    }));
-  }, []);
-
-  const handleRemoveAuthor = useCallback((idToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      autores_ids: prev.autores_ids.filter(id => id !== idToRemove)
-    }));
-  }, []);
 
   return (
     <div className="container mt-4">
@@ -311,7 +305,6 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedActorToAdd')}
                           >
                             <option value="">Seleccione un actor</option>
-                            {/* Filtrar actores ya seleccionados para no duplicar en el dropdown */}
                             {actors.filter(actor => !formData.actores_ids.includes(actor.idactor)).map((actor) => (
                               <option key={actor.idactor} value={actor.idactor}>
                                 {actor.descripcion}
@@ -356,7 +349,6 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
                             onChange={(e) => handleSelectChange(e, 'selectedAuthorToAdd')}
                           >
                             <option value="">Seleccione un autor</option>
-                            {/* Filtrar autores ya seleccionados */}
                             {authors.filter(author => !formData.autores_ids.includes(author.idautor)).map((author) => (
                               <option key={author.idautor} value={author.idautor}>
                                 {author.descripcion}
