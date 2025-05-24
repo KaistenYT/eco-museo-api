@@ -158,7 +158,7 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
 
     } catch (error) {
       console.error('Error creating history:', error);
-      setError(error.message || 'Error al crear la historia.');
+      setError(error.message || 'Error al crear la historia.' + error.message);
       setImageUploadEnabled(false); // Keep image upload disabled on error
     } finally {
       setIsSubmittingHistory(false); // Always reset submission state
