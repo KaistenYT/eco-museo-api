@@ -26,28 +26,45 @@ const EditAuthorForm = () => {
   // pero es una buena práctica para funciones que se usan en useEffect.
   const fetchAuthorData = useCallback(async () => {
     setIsLoading(true);
-    setMessage({ type: '', text: '' }); // Limpia cualquier mensaje previo
-
+    setMessage({ type: '', text: '' });
+  
     try {
       const response = await getAuthorById(id);
-      if (response.success) { // Asumiendo que response.success es booleano
-        setFormData({
-          descripcion: response.data.data.descripcion || '',
-          resenia: response.data.data.resenia || ''
-        });
+      console.log('Respuesta completa:', response);
+  
+      // Verificación flexible de la respuesta
+      const isSuccess = response?.success || 
+                       (response?.data && response.status >= 200 && response.status < 300);
+  
+      if (isSuccess) {
+        // Accede a los datos del autor correctamente
+        const authorData = response.data?.data || response.data;
+        
+        if (authorData) {
+          setFormData({
+            descripcion: authorData.descripcion || '',
+            resenia: authorData.resenia || ''
+          });
+        } else {
+          throw new Error('Datos del autor no encontrados en la respuesta');
+        }
       } else {
-        // Muestra un mensaje de error si la API indica que no fue exitoso
-        setMessage({ type: 'error', text: response.message || 'No se pudo cargar la información del autor.' });
+        throw new Error(response?.message || 'La respuesta no indica éxito');
       }
     } catch (error) {
-      console.error('Error al cargar autor:', error);
-      // Mensaje de error más detallado en caso de fallo de red/servidor
-      setMessage({ type: 'error', text: 'Error de conexión o servidor al cargar el autor.' });
+      console.error('Error al cargar autor:', {
+        error: error,
+        response: error.response
+      });
+      
+      setMessage({ 
+        type: 'error', 
+        text: `Error al cargar el autor: ${error.message || 'Por favor intenta nuevamente'}` 
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [id]); // Dependencia: 'id' del autor
-
+  }, [id]);
   // --- Efecto para cargar los datos cuando el componente se monta o el ID cambia ---
   useEffect(() => {
     fetchAuthorData();
@@ -62,34 +79,44 @@ const EditAuthorForm = () => {
     }));
   };
 
-  // --- Manejador del envío del formulario ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage({ type: '', text: '' }); // Limpia mensajes antes de enviar
-
+    setMessage({ type: '', text: '' });
+  
     try {
-      // Envía solo los campos que quieres actualizar (descripcion y resenia)
+     
       const response = await updateAuthor(id, formData);
-
-      if (response.success) {
+    
+  
+      // Verificación flexible de la respuesta
+      const isSuccess = response?.success || 
+                       (response?.status >= 200 && response?.status < 300) ||
+                       (response?.data && !response?.error);
+  
+      if (isSuccess) {
         setMessage({ type: 'success', text: '¡Autor actualizado exitosamente!' });
-        // Retraso para que el usuario vea el mensaje de éxito antes de navegar
         setTimeout(() => navigate('/authors'), 1500);
       } else {
-        setMessage({ type: 'error', text: response.message || 'Error al actualizar autor.' });
+        const errorMessage = response?.message || 
+                           response?.data?.message || 
+                           'Error al actualizar autor (sin detalles)';
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Error al actualizar autor:', error);
+      console.error('Error detallado al actualizar:', {
+        error: error,
+        response: error.response
+      });
+      
       setMessage({
         type: 'error',
-        text: 'Error de conexión o servidor al actualizar el autor: ' + (error.message || 'Inténtalo de nuevo.')
+        text: `Error al actualizar: ${error.message || 'Por favor intenta nuevamente'}`
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
   // --- Renderizado Condicional ---
   if (isLoading) {
     return (

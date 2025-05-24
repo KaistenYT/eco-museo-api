@@ -69,13 +69,24 @@ export const getAuthors = () => axios.get(`${API_URL}/authors/list`, {
   }
 });
 
-export const getAuthorById = (id) => axios.get(`${API_URL}/authors/${id}`, {
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
+export const getAuthorById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/authors/${id}`);
+    
+    // Devuelve la respuesta en el formato que espera tu componente
+    return {
+      success: true,
+      data: response.data  // response.data contiene { idautor, descripcion, resenia, etc. }
+    };
+    
+  } catch (error) {
+    console.error('Error fetching author:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Error al obtener el autor'
+    };
   }
-});
+};
 
 export const createAuthor = (author) => axios.post(`${API_URL}/authors/add`, author, {
   withCredentials: true,
@@ -85,14 +96,45 @@ export const createAuthor = (author) => axios.post(`${API_URL}/authors/add`, aut
   }
 });
 
-export const updateAuthor = (id, author) => axios.put(`${API_URL}/authors/update/${id}`, author, {
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
+export const updateAuthor = async (id, authorData) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/authors/update/${id}`,
+      authorData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
+    // Devuelve la respuesta en formato consistente
+    return {
+      success: true,
+      data: response.data,
+      message: 'Autor actualizado exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('Error updating author:', error);
+    
+    // Manejo detallado de errores
+    let errorMessage = 'Error al actualizar el autor';
+    if (error.response) {
+      errorMessage = error.response.data?.message || 
+                   `Error ${error.response.status}: ${error.response.statusText}`;
+    } else if (error.request) {
+      errorMessage = 'No se recibió respuesta del servidor';
+    } else {
+      errorMessage = error.message || 'Error desconocido';
+    }
+
+    return {
+      success: false,
+      message: errorMessage
+    };
+  }
+};
 export const deleteAuthor = (id) => axios.delete(`${API_URL}/authors/delete/${id}`, {
   withCredentials: true,
   headers: {
@@ -167,12 +209,44 @@ export const getHistories = async () => {
   }
 };
 
-export const uploadHistoryImage = (id, image) => axios.post(`${API_URL}/histories/upload-image/${id}/image`, image, {
-  withCredentials: true,
-  headers: {
-    'Accept': 'application/json' 
+export const uploadHistoryImage = async (historyId, formData) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/histories/upload-image/${historyId}/image`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        // Agrega esto para manejar mejor los errores
+        validateStatus: function (status) {
+          return status >= 200 && status < 500;
+        }
+      }
+    );
+
+    // Verificación exhaustiva de la respuesta
+    if (!response.data) {
+      throw new Error('No se recibió respuesta del servidor');
+    }
+
+    return response;
+
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    // Mejor manejo de errores
+    if (error.response) {
+      // El servidor respondió con un estado de error
+      throw new Error(error.response.data?.message || 'Error en el servidor al subir la imagen');
+    } else if (error.request) {
+      // La solicitud fue hecha pero no se recibió respuesta
+      throw new Error('No se recibió respuesta del servidor');
+    } else {
+      // Error al configurar la solicitud
+      throw new Error('Error al configurar la solicitud: ' + error.message);
+    }
   }
-});
+};
 
 export const deleteHistoryImage = (id) => axios.delete(`${API_URL}/histories/delete-image/${id}/image`, {
   withCredentials: true,

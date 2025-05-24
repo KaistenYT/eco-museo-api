@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// Asegúrate de que estas funciones de la API están correctamente definidas
-// para interactuar con tu backend.
+
 import { createHistory, getActors, getAuthors, uploadHistoryImage } from '../utils/ApiFun';
 
 const AddHistoryForm = ({ onHistoryAdded }) => {
@@ -171,43 +170,55 @@ const AddHistoryForm = ({ onHistoryAdded }) => {
       setUploadError('¡Por favor selecciona una imagen!');
       return;
     }
-
+  
     if (!historyIdForImage) {
       setUploadError('No se encontró el ID de la historia. Por favor crea la historia primero.');
       return;
     }
-
+  
     setIsUploadingImage(true);
-    setUploadError(null); // Clear previous upload errors
-    setUploadSuccess(false); // Clear previous upload success
-
+    setUploadError(null);
+    setUploadSuccess(false);
+  
     const formData = new FormData();
-    // CLAVE: Asegúrate de que el nombre del campo 'image' coincida con tu backend Multer
     formData.append('image', imageFile);
-
+  
     try {
       const response = await uploadHistoryImage(historyIdForImage, formData);
-
-      if (!response?.data?.success) {
-        throw new Error(response?.data?.message || 'Error al subir la imagen.');
+  
+      // Verificación flexible de la respuesta
+      const isSuccess = response?.data?.success || 
+                       (response?.data?.imagen && !response?.data?.error);
+  
+      if (!isSuccess) {
+        throw new Error(response?.data?.message || 'La imagen se subió pero la respuesta no indica éxito');
       }
-
+  
       setUploadSuccess(true);
-      setImageFile(null); // Clear selected image after successful upload
-
-      // Navegar inmediatamente después de la subida exitosa.
-      // Ya no usamos setTimeout para una experiencia de usuario más fluida.
-      if (onHistoryAdded) onHistoryAdded(); // Trigger parent's callback if exists
-      navigate('/histories'); // Redirect to histories list
-
+      setSuccessMessage(response?.data?.message || '¡Imagen subida correctamente!');
+      setImageFile(null);
+  
+      // Redirigir después de 2 segundos
+      setTimeout(() => {
+        if (onHistoryAdded) onHistoryAdded();
+        navigate('/histories');
+      }, 2000);
+  
     } catch (error) {
-      console.error('Error uploading image:', error);
-      setUploadError(error.message || 'Error al subir la imagen.');
+      console.error('Error en la subida:', {
+        error: error.message,
+        response: error.response?.data
+      });
+      
+      setUploadError(
+        error.response?.data?.message || 
+        error.message || 
+        'La imagen se subió pero hubo un problema con la confirmación'
+      );
     } finally {
-      setIsUploadingImage(false); // Always reset upload state
+      setIsUploadingImage(false);
     }
-  }, [imageFile, historyIdForImage, navigate, onHistoryAdded]); // Dependencies for useCallback
-
+  }, [imageFile, historyIdForImage, navigate, onHistoryAdded]);
   // Initial data loading effect for actors and authors
   useEffect(() => {
     const fetchData = async () => {
