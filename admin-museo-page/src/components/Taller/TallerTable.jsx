@@ -16,7 +16,7 @@ const TallerTable = () => {
       try {
         const response = await getTallers();
         // console.log('Full API Response:', response);
-        // console.log('API Response Data:', response.data);
+         console.log('API Response Data:', response.data);
 
         if (response.data && Array.isArray(response.data.data)) {
           setTallers(response.data.data);
