@@ -21,7 +21,10 @@ import HistoryTable from './components/Histories/HistoryTable';
 import AddHistoryForm from './components/Histories/AddHistoryForm';
 import EditHistoryForm from './components/Histories/EditHistoryForm';
 
-
+// Taller
+import TallerTable from './components/Taller/TallerTable';
+import AddTallerForm from './components/Taller/AddTallerForm';
+import EditTallerForm from './components/Taller/EditTallerForm';
 function App() {
   return (
     <Router>
@@ -52,6 +55,13 @@ function App() {
               <Route index element={<HistoryTable />} />
               <Route path="add" element={<AddHistoryForm />} />
               <Route path="edit/:id" element={<EditHistoryForm />} />
+            </Route>
+
+            {/* Taller */}
+            <Route path="/tallers">
+              <Route index element={<TallerTable />} />
+              <Route path="add" element={<AddTallerForm />} />
+              <Route path="edit/:id" element={<EditTallerForm />} />
             </Route>
           </Routes>
         </main>

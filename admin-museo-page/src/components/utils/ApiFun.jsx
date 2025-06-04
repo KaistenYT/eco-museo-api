@@ -1,8 +1,8 @@
 import axios from "axios";
 
 
-const API_URL = 'https://historias-api-crud-v2.vercel.app'
-/*const API_URL = 'http://localhost:3000';*/
+/*const API_URL = 'https://historias-api-crud-v2.vercel.app'*/
+const API_URL = 'http://localhost:3000';
 
 // Actors API
 export const getActors = () => axios.get(`${API_URL}/actors/list`, {
@@ -255,3 +255,56 @@ export const deleteHistoryImage = (id) => axios.delete(`${API_URL}/histories/del
     'Accept': 'application/json'
   }
 });
+
+// Taller API
+export const createTaller = (taller) => axios.post(`${API_URL}/tallers/add`, taller, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const updateTaller = (id, taller) => axios.put(`${API_URL}/tallers/update/${id}`, taller, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const deleteTaller = (id) => axios.delete(`${API_URL}/tallers/delete/${id}`, {
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export const getTallerById = async (id) => {
+  const response = await axios.get(`${API_URL}/tallers/${id}`, {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }
+  });
+  return response;
+};
+
+export const getTallers = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/tallers/list`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    return response;
+  } catch (error) {
+    throw new Error('Error al obtener talleres');
+  }
+};
+
+

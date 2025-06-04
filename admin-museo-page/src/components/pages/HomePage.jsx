@@ -49,6 +49,18 @@ const HomePage = () => {
           </Link>
         </div>
 
+        {/* Botón Taller */}
+        <div className="col-md-6 col-lg-3">
+          <Link to="/tallers" className="text-decoration-none">
+            <div className="card h-100 border-info">
+              <div className="card-body text-center py-4">
+                <i className="bi bi-tools fs-1 text-info mb-3"></i>
+                <h3 className="card-title">Taller</h3>
+              </div>
+            </div>
+          </Link>
+        </div>
+
        
       </div>
     </div>
