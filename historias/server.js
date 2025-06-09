@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 app.use('/actors', actorRoutes);
 app.use('/authors', authorRoutes);
 app.use('/histories', historyRoutes);
-//app.use('/tallers', tallerRoutes);
+app.use('/tallers', tallerRoutes);
 app.use('/users', userRoutes);
 
 // Error handling middleware
