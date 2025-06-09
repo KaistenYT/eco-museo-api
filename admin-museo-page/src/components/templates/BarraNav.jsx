@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'; // Import the Link component
+import { useAuth } from '../../contexts/AuthContext';
 
 export function BarraNav() {
+  const {user, logout} = useAuth();
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -21,7 +24,26 @@ export function BarraNav() {
                 <Link to="/histories" className="nav-link">Historias</Link> {/* Use Link here */}
               </li>
             </ul>
-          </div>
+            {user ? (
+              <ul className="navbar-nav ms-auto">
+                <li className="nav-item">
+                  <span className="nav-link">Bienvenido, {user.username}</span>
+                </li>
+                <li className="nav-item">
+                  <button className="btn btn-outline-danger" onClick={logout}>Cerrar Sesión</button>
+                </li>
+              </ul>
+            ) : (
+              <ul className="navbar-nav ms-auto">
+                <li className="nav-item">
+                  <Link to="/login" className="nav-link">Iniciar Sesión</Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/register" className="nav-link">Registrarse</Link>
+                </li>
+              </ul>
+            )}
+            </div>
         </div>
       </nav>
     </div>

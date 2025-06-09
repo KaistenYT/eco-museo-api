@@ -1,8 +1,8 @@
 import axios from "axios";
 
 
-const API_URL = 'https://historias-api-crud-v2.vercel.app'
-//const API_URL = 'http://localhost:3000';
+//const API_URL = 'https://historias-api-crud-v2.vercel.app'
+const API_URL = 'http://localhost:3000';
 
 // Actors API
 export const getActors = () => axios.get(`${API_URL}/actors/list`, {
