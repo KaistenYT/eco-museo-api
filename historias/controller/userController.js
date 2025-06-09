@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-import User  from "../model/user";
+import User  from "../model/user.js";
 
 export class UserController{
 
