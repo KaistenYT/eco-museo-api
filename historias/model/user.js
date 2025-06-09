@@ -27,16 +27,7 @@ class User{
      return data;
     }
 
-    static async findById(id){
-        const {data, error} = await supabase.from("user").select("*").eq("id", id).maybeSingle();
-
-        if(error){
-            console.log(error);
-            throw error;
-        }
-
-        return data;
-    }
+ 
 
 }
 
