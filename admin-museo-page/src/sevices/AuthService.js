@@ -1,8 +1,8 @@
 // src/services/authService.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000'; 
-
+//const API_URL = 'http://localhost:3000'; 
+const API_URL = 'https://historias-api-crud-v2.vercel.app'
 const login = async (credentials) => {
   try {
     console.log('Sending login request with:', credentials);
