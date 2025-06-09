@@ -59,7 +59,7 @@ app.use('/actors', actorRoutes);
 app.use('/authors', authorRoutes);
 app.use('/histories', historyRoutes);
 app.use('/tallers', tallerRoutes);
-app.use('/users', userRoutes);
+//app.use('/users', userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
