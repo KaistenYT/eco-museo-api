@@ -10,7 +10,7 @@ import actorRoutes from './routes/actorRoutes.js';
 import authorRoutes from './routes/authorRoutes.js';
 import historyRoutes from './routes/historyRoutes.js';
 import tallerRoutes from './routes/tallerRoutes.js';
-//import userRoutes from './routes/userRoutes.js';  
+import userRoutes from './routes/userRoutes.js';  
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -58,8 +58,8 @@ app.use((req, res, next) => {
 app.use('/actors', actorRoutes);
 app.use('/authors', authorRoutes);
 app.use('/histories', historyRoutes);
-app.use('/tallers', tallerRoutes);
-//app.use('/users', userRoutes);
+//app.use('/tallers', tallerRoutes);
+app.use('/users', userRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
