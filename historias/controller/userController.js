@@ -65,7 +65,7 @@ export class UserController{
     }
     static async getProfile (req , res){
         try{
-          const user = await User.findById(req.user.id);
+          const user = await User.findById(req.params.id);
           if(!user){
             return res.status(404).json({message: "User not found"});
           }
