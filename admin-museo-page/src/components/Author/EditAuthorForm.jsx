@@ -140,7 +140,7 @@ const EditAuthorForm = () => {
 
       <form onSubmit={handleSubmit}>
         <div className="form-group mb-3"> {/* Añadido mb-3 para espaciado */}
-          <label htmlFor="descripcion">Descripción (Nombre):</label>
+          <label htmlFor="descripcion">Nombre (Nombre):</label>
           <input
             type="text"
             id="descripcion" // ID para accesibilidad

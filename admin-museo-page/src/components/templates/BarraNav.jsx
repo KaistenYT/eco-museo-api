@@ -15,13 +15,16 @@ export function BarraNav() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <Link to="/actors" className="nav-link">Actores</Link> {/* Use Link here */}
+                <Link to="/actors" className="nav-link">Titeres</Link> {/* Use Link here */}
               </li>
               <li className="nav-item">
                 <Link to="/authors" className="nav-link">Autores</Link> {/* Use Link here */}
               </li>
               <li className="nav-item">
                 <Link to="/histories" className="nav-link">Historias</Link> {/* Use Link here */}
+              </li>
+              <li className="nav-item">
+                <Link to="/tallers" className="nav-link">Talleres</Link> {/* Use Link here */}
               </li>
             </ul>
             {user ? (

@@ -75,8 +75,8 @@ const AuthorTable = () => {
       <table className="table table-striped">
         <thead className="table-dark">
           <tr>
-            <th scope="col">Descripción</th>
-            <th scope="col">Resenia</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Reseña</th>
             <th scope="col">Imagen</th>
             <th scope="col">Acciones</th>
           </tr>

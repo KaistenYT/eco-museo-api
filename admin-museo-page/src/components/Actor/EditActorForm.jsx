@@ -72,7 +72,7 @@ const EditActorForm = () => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Descripción:</label>
+          <label>Nombre:</label>
           <input
             type="text"
             name="descripcion"

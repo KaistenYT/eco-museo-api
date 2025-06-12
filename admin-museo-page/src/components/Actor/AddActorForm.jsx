@@ -102,7 +102,7 @@ const AddActorForm = ({ onActorAdded }) => {
               <form onSubmit={handleCreateActor}>
                 <div className="mb-3">
                   <label htmlFor="descripcion" className="form-label">
-                    Descripción
+                   Nombre
                   </label>
                   <textarea
                     className="form-control"

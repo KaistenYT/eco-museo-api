@@ -15,21 +15,21 @@ const HomePage = () => {
         </h1>
         <p className="lead text-muted">
           {isAuthenticated 
-            ? 'Gestiona los actores, autores, historias y participaciones del museo'
+            ? 'Gestiona los titeres, autores, historias y participaciones del museo'
             : 'Inicia sesión para acceder al panel de administración'}
         </p>
       </div>
 
       {isAuthenticated ? (
         <div className="row g-4">
-          {/* Botón Actores */}
+          {/* Botón Titeres */}
           <div className="col-md-6 col-lg-3">
             <Link to="/actors" className="text-decoration-none">
               <div className="card h-100 border-primary hover-scale">
                 <div className="card-body text-center py-4">
                   <i className="bi bi-people-fill fs-1 text-primary mb-3"></i>
-                  <h3 className="card-title">Actores</h3>
-                  <p className="card-text text-muted">Gestiona la lista de actores</p>
+                  <h3 className="card-title">Titeres</h3>
+                  <p className="card-text text-muted">Gestiona la lista de Titeres</p>
                 </div>
               </div>
             </Link>
@@ -88,9 +88,6 @@ const HomePage = () => {
                   <div className="d-flex justify-content-center gap-3">
                     <Link to="/login" className="btn btn-primary px-4">
                       <i className="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
-                    </Link>
-                    <Link to="/register" className="btn btn-outline-secondary px-4">
-                      <i className="bi bi-person-plus me-2"></i>Registrarse
                     </Link>
                   </div>
                 </div>

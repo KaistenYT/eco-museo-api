@@ -103,7 +103,7 @@ const AddAuthorForm = ({ onAuthorAdded }) => {
               <form onSubmit={handleCreateAuthor}>
                 <div className="mb-3">
                   <label htmlFor="descripcion" className="form-label">
-                    Descripción
+                    Nombre
                   </label>
                   <textarea
                     className="form-control"

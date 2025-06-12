@@ -5,9 +5,7 @@ import axios from 'axios';
 const API_URL = 'https://historias-api-crud-v2.vercel.app'
 const login = async (credentials) => {
   try {
-    console.log('Sending login request with:', credentials);
     const response = await axios.post(`${API_URL}/users/login`, credentials);
-    console.log('Login response:', response.data);
     
     if (response.data.token) {
       // Ensure we have the expected user data

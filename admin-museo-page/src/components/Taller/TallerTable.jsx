@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTallers } from '../utils/ApiFun';
+import { getTallers, deleteTaller } from '../utils/ApiFun';
 import './TallerTable.css'; // Import custom CSS file
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -43,9 +43,20 @@ const TallerTable = () => {
     // Implement your edit logic here (e.g., navigate to an edit form)
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     console.log('Delete taller:', id);
-    // Implement your delete logic here (e.g., confirmation dialog, then API call)
+    if (window.confirm('¿Está seguro de que desea eliminar este taller?')) {
+      try {
+        await deleteTaller(id);
+        // Instead of refetching all, you could filter out the deleted item from the current state
+        setTallers(tallers.filter(taller => taller.id_taller !== id));
+        // Or if you prefer to refetch all to ensure data consistency after deletion:
+        // fetchTallers();
+      } catch (error) {
+        console.error('Error al eliminar el taller:', error);
+        setError('Error al eliminar el taller. Inténtelo de nuevo.');
+      }
+    }
   };
 
   return (

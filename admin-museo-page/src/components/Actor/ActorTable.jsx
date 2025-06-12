@@ -51,7 +51,7 @@ const ActorTable = () => {
       <table className="table table-striped">
         <thead className="table-dark">
           <tr>
-            <th scope="col">Descripción</th>
+            <th scope="col">Nombre</th>
             <th scope="col">Imagen</th>
           
             <th scope="col">Acciones</th>

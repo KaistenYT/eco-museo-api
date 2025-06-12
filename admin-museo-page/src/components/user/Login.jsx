@@ -83,14 +83,7 @@ const Login = () => {
                     {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                   </button>
                 </form>
-                <div className="text-center mt-3">
-                  <p className="mb-0">
-                    ¿No tienes una cuenta?{' '}
-                    <Link to="/register" className="text-primary">
-                      Regístrate
-                    </Link>
-                  </p>
-                </div>
+                
               </div>
             </div>
           </div>
