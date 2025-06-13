@@ -17,7 +17,7 @@ const ActorTable = () => {
         setActors([]);
       }
     } catch (error) {
-      console.error('Error al obtener actores:', error);
+      console.error('Error al obtener titere:', error);
       setActors([]);
     }
   };
@@ -27,7 +27,7 @@ const ActorTable = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este actor?')) {
+    if (!window.confirm('¿Estás seguro de eliminar este Titere?')) {
       return;
     }
     
@@ -38,11 +38,11 @@ const ActorTable = () => {
         alert('Actor eliminado exitosamente');
         fetchActors(); // Refrescar la lista
       } else {
-        alert('Error al eliminar actor: ' + response.data.message);
+        alert('Error al eliminar titere: ' + response.data.message);
       }
     } catch (error) {
-      console.error('Error al eliminar actor:', error);
-      alert('Error al eliminar actor: ' + (error.response?.data?.message || error.message));
+     
+      alert('Error al eliminar titere: ' + (error.response?.data?.message || error.message));
     }
   };
 

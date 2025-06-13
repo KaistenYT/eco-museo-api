@@ -19,7 +19,7 @@ const AddActorForm = ({ onActorAdded }) => {
   const [uploadError, setUploadError] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [actorCreatedMessage, setActorCreatedMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+ 
 
   // Manejadores de eventos
   const handleChange = (e) => {
@@ -47,16 +47,16 @@ const AddActorForm = ({ onActorAdded }) => {
       if (response.data.success && response.data.data) {
         newActorId = response.data.data.idactor; // Aquí se asigna un valor a newActorId
         setActorId(newActorId);
-        setActorCreatedMessage('Actor creado exitosamente. Ahora puedes subir una imagen.');
+        setActorCreatedMessage('Titere creado exitosamente. Ahora puedes subir una imagen.');
         setFormData({ descripcion: '', caracteristicas: '' });
         if (onActorAdded) onActorAdded();
       } else {
-        console.error('Error al crear actor:', response.data?.error || 'Error desconocido');
-        setCreateActorError(`Error al crear actor: ${response.data?.message || 'Inténtalo de nuevo.'}`);
+        console.error('Error al crear titere:', response.data?.error || 'Error desconocido');
+        setCreateActorError(`Error al crear titere: ${response.data?.message || 'Inténtalo de nuevo.'}`);
       }
     } catch (error) {
-      console.error('Error al crear actor:', error);
-      setCreateActorError('Ocurrió un error al crear el actor. Por favor, inténtalo de nuevo.');
+      console.error('Error al crear titere:', error);
+      setCreateActorError('Ocurrió un error al crear el titere. Por favor, inténtalo de nuevo.');
     } finally {
       setIsCreatingActor(false);
     }
@@ -65,7 +65,7 @@ const AddActorForm = ({ onActorAdded }) => {
 
   const handleUploadImage = async () => {
     if (!actorId || !imageFile) {
-      alert('Por favor, crea el actor primero y selecciona una imagen.');
+      alert('Por favor, crea el titere primero y selecciona una imagen.');
       return;
     }
     
@@ -95,7 +95,7 @@ const AddActorForm = ({ onActorAdded }) => {
       <div className="row justify-content-center">
         <div className="col-md-8 col-lg-6">
           <div className="card p-4 shadow">
-            <h2 className="mb-4 text-center">Agregar Nuevo Actor</h2>
+            <h2 className="mb-4 text-center">Agregar Nuevo Titere</h2>
 
             {!actorId ? (
               // Paso 1: Ingresar datos del actor
@@ -138,10 +138,10 @@ const AddActorForm = ({ onActorAdded }) => {
                     {isCreatingActor ? (
                       <>
                         <Spinner animation="border" size="sm" className="me-2" />
-                        Creando Actor...
+                        Creando Titere...
                       </>
                     ) : (
-                      'Crear Actor'
+                      'Crear Titere'
                     )}
                   </button>
                 </div>
@@ -150,7 +150,7 @@ const AddActorForm = ({ onActorAdded }) => {
             ) : (
               // Paso 2: Subir la imagen después de crear el actor
               <div>
-                <h3 className="mt-4 mb-3">Subir Imagen del Actor</h3>
+                <h3 className="mt-4 mb-3">Subir Imagen del Titere</h3>
                 <div className="mb-3">
                   <label htmlFor="imagen" className="form-label">
                     Seleccionar Imagen

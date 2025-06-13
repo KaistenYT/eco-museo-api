@@ -23,8 +23,8 @@ const EditActorForm = () => {
           });
         }
       } catch (error) {
-        console.error('Error fetching actor:', error);
-        alert('Error al cargar actor');
+        
+        alert('Error al cargar titere');
       } finally {
         setIsLoading(false);
       }
@@ -49,14 +49,14 @@ const EditActorForm = () => {
       const response = await updateActor(id, formData);
       
       if (response.data.success) {
-        alert('Actor actualizado exitosamente');
+        alert('Titere actualizado exitosamente');
         navigate('/actors');
       } else {
-        alert('Error al actualizar actor: ' + response.data.message);
+        alert('Error al actualizar titere: ' + response.data.message);
       }
     } catch (error) {
-      console.error('Error updating actor:', error);
-      alert('Error al actualizar actor: ' + (error.response?.data?.message || error.message));
+      
+      alert('Error al actualizar titere: ' + (error.response?.data?.message || error.message));
     } finally {
       setIsSubmitting(false);
     }
@@ -68,7 +68,7 @@ const EditActorForm = () => {
 
   return (
     <div className="card shadow-sm p-4 mb-5 bg-white rounded ms-5 me-5">
-      <h2 className="h4 font-weight-bold mb-4">Editar Actor</h2>
+      <h2 className="h4 font-weight-bold mb-4">Editar Titere</h2>
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
