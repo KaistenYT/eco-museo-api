@@ -53,6 +53,7 @@ const ActorTable = () => {
           <tr>
             <th scope="col">Nombre</th>
             <th scope="col">Imagen</th>
+            <th scope="col">caracteristicas</th>
           
             <th scope="col">Acciones</th>
           </tr>
@@ -62,6 +63,7 @@ const ActorTable = () => {
             actors.map((actor) => (
               <tr key={actor.idactor}>
                 <td>{actor.descripcion || 'N/A'}</td>
+                <td>{actor.caracteristicas || 'N/A'}</td>
                 <td>
                   {actor.imagen ? (
                     <img 
@@ -92,7 +94,7 @@ const ActorTable = () => {
           ) : (
             <tr>
               <td colSpan="3" className="text-center">
-                No hay actores disponibles
+                No hay titeres disponibles
               </td>
             </tr>
           )}
