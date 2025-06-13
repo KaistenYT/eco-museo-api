@@ -99,7 +99,7 @@ const ActorTable = () => {
         </tbody>
       </table>
       <Link to="/actors/add" className="btn btn-primary">
-        Agregar Actor
+        Agregar Titere
       </Link>
     </div>
   )
