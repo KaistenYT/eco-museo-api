@@ -26,19 +26,19 @@ export default class History {
       console.log('[HISTORY MODEL] Buscando historia con ID:', id);
       console.log('[HISTORY MODEL] Tipo de ID:', typeof id);
       console.log('[HISTORY MODEL] Longitud de ID:', id?.length);
-      
+  
       // Primero intentar obtener la historia básica
       const { data: historyData, error: historyError } = await supabase
         .from('history')
-        .select('idhistory, titulo, descripcion, idactor, idautor')
+        .select('idhistory, titulo, descripcion') // Removed idactor, idautor
         .eq('idhistory', id)
         .single();
-
+  
       if (historyError) {
         console.error('[HISTORY MODEL] Error al obtener historia básica:', historyError);
         throw historyError;
       }
-
+  
       if (!historyData) {
         console.log('[HISTORY MODEL] Historia no encontrada en la tabla history');
         console.log('[HISTORY MODEL] Consulta ejecutada:', {
@@ -47,46 +47,52 @@ export default class History {
         });
         return null;
       }
-
+  
       // Si encontramos la historia, ahora obtenemos las relaciones
       const { data: actorsData, error: actorsError } = await supabase
         .from('historia_actor')
-        .select('idactor, actor(descripcion)')
+        .select('actor(idactor, descripcion)') // Select idactor from the joined actor table
         .eq('idhistory', id);
-
+  
       if (actorsError) {
         console.error('[HISTORY MODEL] Error al obtener actores:', actorsError);
         throw actorsError;
       }
-
+  
       const { data: authorsData, error: authorsError } = await supabase
         .from('historia_autor')
-        .select('idautor, autor(descripcion)')
+        .select('autor(idautor, descripcion)') // Select idautor from the joined autor table
         .eq('idhistory', id);
-
+  
       if (authorsError) {
         console.error('[HISTORY MODEL] Error al obtener autores:', authorsError);
         throw authorsError;
       }
-
+  
+      // Transform actor and author data to a flat array if needed, otherwise keep as is
+      const formattedActors = actorsData ? actorsData.map(item => item.actor) : [];
+      const formattedAuthors = authorsData ? authorsData.map(item => item.autor) : [];
+  
       // Combinar los datos
       const result = {
         ...historyData,
-        actores: actorsData || [],
-        autores: authorsData || []
+        actores: formattedActors,
+        autores: formattedAuthors
       };
-
+  
       console.log('[HISTORY MODEL] Resultado completo:', {
         history: !!historyData,
-        actors: actorsData?.length || 0,
-        authors: authorsData?.length || 0
+        actors: formattedActors.length || 0,
+        authors: formattedAuthors.length || 0
       });
-
+  
       // Devolver solo la historia básica si se está usando para eliminación
+      // This condition `if (result.idhistory)` will always be true if historyData was found.
+      // Consider if this check is truly necessary or if `return result;` is sufficient.
       if (result.idhistory) {
         return result;
       }
-      return null;
+      return null; // This line might be unreachable if historyData is guaranteed to exist when it reaches here.
     } catch (error) {
       console.error('[HISTORY MODEL] Error general:', error);
       throw error;
@@ -271,96 +277,82 @@ export default class History {
 
   static async update(id, historyData) {
     try {
-      console.log('Actualizando historia con ID:', id);
-      console.log('Datos recibidos para actualización:', historyData);
-
-      // Procesar idactor e idautor de manera consistente
-      const idactor = historyData.idactor === '' || historyData.idactor === undefined ? null : historyData.idactor;
-      const idautor = historyData.idautor === '' || historyData.idautor === undefined ? null : historyData.idautor;
-      
-      console.log('Valores procesados:', { idactor, idautor });
-
-      // Crear datos de forma más directa para Supabase
       const updateData = {
         titulo: historyData.titulo,
         descripcion: historyData.descripcion
       };
-
-      // Asignar explícitamente los valores de idactor e idautor
-      if (idactor !== null && idactor !== undefined) {
-        console.log(`Añadiendo idactor: ${idactor} (${typeof idactor}) a los datos a actualizar`);
-        updateData.idactor = idactor;
-      }
-
-      if (idautor !== null && idautor !== undefined) {
-        console.log(`Añadiendo idautor: ${idautor} (${typeof idautor}) a los datos a actualizar`);
-        updateData.idautor = idautor;
-      }
-
-      console.log('Datos finales para actualización:', JSON.stringify(updateData, null, 2));
-      
-      // First update the history record
+  
+      // // The previous problematic blocks that looked for singular idactor/idautor
+      // // These should ideally be removed or commented out now to avoid confusion
+      // if (historyData.idactor !== null && historyData.idactor !== undefined) { ... }
+      // if (historyData.idautor !== null && historyData.idautor !== undefined) { ... }
+  
+      // console.log('Datos finales para actualización:', JSON.stringify(updateData, null, 2));
+      // This log *still* won't show actores/autores because 'updateData' only gets title/description.
+      // This is FINE, because Supabase's .update() on the 'history' table itself wouldn't get these arrays.
+      // The arrays are for the junction tables.
+  
       const { data: history, error: historyError } = await supabase
         .from('history')
-        .update(updateData)
+        .update(updateData) // This correctly updates just title/description on the main history table
         .eq('idhistory', id)
         .select()
         .single();
-
-      if (historyError) throw historyError;
-
+  
+      if (historyError) throw historyError; // Handle errors for main history update
+  
+      // --- CRUCIAL PART ---
       // Update actor relationships
-      if (historyData.actores_ids && Array.isArray(historyData.actores_ids)) {
+      // Frontend sends 'actores' (array of objects with {idactor, descripcion})
+      // Backend is checking for 'actores_ids' (array of IDs)
+      if (historyData.actores && Array.isArray(historyData.actores)) { // <-- CHANGE THIS LINE!
         // Delete existing relationships
         const { error: deleteActorError } = await supabase
           .from('historia_actor')
           .delete()
           .eq('idhistory', id);
-
         if (deleteActorError) throw deleteActorError;
-
+  
         // Create new relationships if any
-        if (historyData.actores_ids.length > 0) {
-          const actorInserts = historyData.actores_ids.map(idactor => ({
+        if (historyData.actores.length > 0) { // <-- Use 'actores' here too
+          const actorInserts = historyData.actores.map(actorObject => ({ // <-- Map from actorObject
             idhistory: id,
-            idactor
+            idactor: actorObject.idactor // <-- Extract idactor from the object
           }));
-
           const { error: actorInsertError } = await supabase
             .from('historia_actor')
             .insert(actorInserts);
-
           if (actorInsertError) throw actorInsertError;
         }
       }
-
+  
       // Update author relationships
-      if (historyData.autores_ids && Array.isArray(historyData.autores_ids)) {
+      // Frontend sends 'autores' (array of objects with {idautor, descripcion})
+      // Backend is checking for 'autores_ids' (array of IDs)
+      if (historyData.autores && Array.isArray(historyData.autores)) { // <-- CHANGE THIS LINE!
         // Delete existing relationships
         const { error: deleteAuthorError } = await supabase
           .from('historia_autor')
           .delete()
           .eq('idhistory', id);
-
         if (deleteAuthorError) throw deleteAuthorError;
-
+  
         // Create new relationships if any
-        if (historyData.autores_ids.length > 0) {
-          const autorInserts = historyData.autores_ids.map(idautor => ({
+        if (historyData.autores.length > 0) { // <-- Use 'autores' here too
+          const autorInserts = historyData.autores.map(authorObject => ({ // <-- Map from authorObject
             idhistory: id,
-            idautor
+            idautor: authorObject.idautor // <-- Extract idautor from the object
           }));
-
           const { error: authorInsertError } = await supabase
             .from('historia_autor')
             .insert(autorInserts);
-
           if (authorInsertError) throw authorInsertError;
         }
       }
-
+  
       return history;
     } catch (error) {
+      console.error("Error in backend update:", error); // Add more detailed logging
       throw error;
     }
   }
